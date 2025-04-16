@@ -4,11 +4,10 @@ import {
   gfmStrikethrough,
   gfmStrikethroughHtml,
 } from "micromark-extension-gfm-strikethrough";
-import { PickedFileUrl } from "../customElements/create-post";
 import van from "vanjs-core";
-import { UiIcon, Utils } from "./utils";
+import { UiIcon, PickedFileUrl } from "./utils";
 
-const { link, span, div, audio, video, img } = van.tags;
+const { link, span, div, audio, video } = van.tags;
 
 const mediaObserver = new IntersectionObserver(
   (e) => {

@@ -1,14 +1,22 @@
 import { Ulid } from "id128";
 import base from "base-x";
-import store from "store2";
-import { MOBILE_MAX_WIDTH_PX, rawUsernameRegex } from "../constants";
-import { getIcon } from "./icons";
-import { createElement, IconNode } from "lucide";
+import { rawUsernameRegex } from "../constants";
 import { markdownToHtmlElement } from "./markdown";
+import van from "vanjs-core";
+import { createElement, IconNode } from "lucide";
+import { getIcon } from "./icons";
+
+import { File as PostFile } from "../protos/post";
 
 const chars =
   "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_`abcdefghijklmnopqrstuvwxyz{|}~";
 const codeUnits = Array.from(new TextEncoder().encode(chars));
+
+export interface PickedFileUrl {
+  blobUrl: string;
+  cdnUrl: string;
+  file: PostFile;
+}
 
 export function areListsEqual<T>(a: T[], b: T[]): boolean {
   if (a === b) return true;
@@ -412,48 +420,48 @@ export const tryCatchIfUndefine = <T,>(f: () => T) => {
 
 export const markdownToHTMLElement = markdownToHtmlElement;
 
-export const isDarkMode = van.state(store.get("darkMode") ?? false);
+// export const isDarkMode = van.state(store.get("darkMode") ?? false);
 
-van.derive(() => {
-  (document.getElementById("icon")! as HTMLLinkElement).href = isDarkMode.val
-    ? "/favicon-dark.svg"
-    : "/favicon.svg";
+// van.derive(() => {
+//   (document.getElementById("icon")! as HTMLLinkElement).href = isDarkMode.val
+//     ? "/favicon-dark.svg"
+//     : "/favicon.svg";
 
-  store.set("darkMode", isDarkMode.val);
+//   store.set("darkMode", isDarkMode.val);
 
-  const LIGHTMODE: Record<string, string> = {
-    "--primary-color": "white",
-    "--opposite-color": "black",
-    "--accent-color": "rgb(231, 231, 231)",
-    "--selected-color": "rgb(67, 67, 67);",
-    "--primary-accent-color": "rgb(245, 245, 245)",
-  } as const;
+//   const LIGHTMODE: Record<string, string> = {
+//     "--primary-color": "white",
+//     "--opposite-color": "black",
+//     "--accent-color": "rgb(231, 231, 231)",
+//     "--selected-color": "rgb(67, 67, 67);",
+//     "--primary-accent-color": "rgb(245, 245, 245)",
+//   } as const;
 
-  const DARKMODE: Record<string, string> = {
-    "--primary-color": "black",
-    "--opposite-color": "white",
-    "--accent-color": "rgb(67, 67, 67)",
-    "--selected-color": "rgb(67, 67, 67);",
-    "--primary-accent-color": "rgb(10, 10, 10)",
-  } as const;
+//   const DARKMODE: Record<string, string> = {
+//     "--primary-color": "black",
+//     "--opposite-color": "white",
+//     "--accent-color": "rgb(67, 67, 67)",
+//     "--selected-color": "rgb(67, 67, 67);",
+//     "--primary-accent-color": "rgb(10, 10, 10)",
+//   } as const;
 
-  for (const [key, value] of Object.entries(
-    isDarkMode.val ? DARKMODE : LIGHTMODE,
-  )) {
-    document.documentElement.style.setProperty(key, value);
-  }
-  console.log({ darkMode: isDarkMode.val });
-});
+//   for (const [key, value] of Object.entries(
+//     isDarkMode.val ? DARKMODE : LIGHTMODE,
+//   )) {
+//     document.documentElement.style.setProperty(key, value);
+//   }
+//   console.log({ darkMode: isDarkMode.val });
+// });
 
-export function ToggleDarkModeButton() {
-  return button(
-    {
-      class: "theme-button",
-      onclick: () => (isDarkMode.val = !isDarkMode.val),
-    },
-    () => (isDarkMode.val ? UiIcon("sun") : UiIcon("moon")),
-  );
-}
+// export function ToggleDarkModeButton() {
+//   return button(
+//     {
+//       class: "theme-button",
+//       onclick: () => (isDarkMode.val = !isDarkMode.val),
+//     },
+//     () => (isDarkMode.val ? UiIcon("sun") : UiIcon("moon")),
+//   );
+// }
 
 export function UiIcon(i: string | IconNode) {
   let icon: SVGElement;
@@ -464,22 +472,22 @@ export function UiIcon(i: string | IconNode) {
   } else {
     icon = createElement(i as IconNode);
   }
-  return span({ class: className }, icon);
+  return van.tags.span({ class: className }, icon);
 }
 
-export const windowSize = vanX.reactive({
-  width: window.innerWidth,
-  height: window.innerHeight,
-});
+// export const windowSize = vanX.reactive({
+//   width: window.innerWidth,
+//   height: window.innerHeight,
+// });
 
-export const isMobileResolution = van.derive(
-  () => windowSize.width <= MOBILE_MAX_WIDTH_PX,
-);
+// export const isMobileResolution = van.derive(
+//   () => windowSize.width <= MOBILE_MAX_WIDTH_PX,
+// );
 
-window.addEventListener("resize", (_) => {
-  windowSize.height = window.innerHeight;
-  windowSize.width = window.innerWidth;
-});
+// window.addEventListener("resize", (_) => {
+//   windowSize.height = window.innerHeight;
+//   windowSize.width = window.innerWidth;
+// });
 
 export interface ResponseInit {
   status: number;

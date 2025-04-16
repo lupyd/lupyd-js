@@ -2,7 +2,7 @@ import { isValidUsername } from "../bin/utils";
 import { AuthHandler } from "../firebase/auth";
 import van from "vanjs-core";
 import { LupydFirebaseElement } from "../firebase/element";
-import { FIRERTDB_BASE_URL, FIRESTORE_BASE_URL } from "../constants";
+import { FIRESTORE_BASE_URL } from "../constants";
 
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
 
