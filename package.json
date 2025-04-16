@@ -1,7 +1,11 @@
 {
   "name": "lupyd-js",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
   "license": "MIT",
   "dependencies": {
     "base-x": "^5.0.1",
