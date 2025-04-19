@@ -1,7 +1,7 @@
 import { isValidUsername } from "../bin/utils";
 import { AuthHandler } from "../firebase/auth";
 import van from "vanjs-core";
-import { LupydFirebaseElement } from "../firebase/element";
+import { fbElement, LupydFirebaseElement } from "../firebase/element";
 import { FIRESTORE_BASE_URL } from "../constants";
 
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
@@ -48,9 +48,7 @@ export const unfollowUsers = async (users: Array<string>) => {
 export async function fetchUserDoc() {
   const username = await AuthHandler.getUsername();
   const token = await AuthHandler.getToken();
-  const projectId = (document.querySelector(
-    "lupyd-firebase",
-  ) as LupydFirebaseElement)!.app.options.projectId;
+  const projectId = fbElement()!.app.options.projectId;
   if (!username || !token || !projectId) {
     return undefined;
   }
@@ -77,9 +75,7 @@ export async function updateUserDocFollows(
   }
   const username = await AuthHandler.getUsername();
   const token = await AuthHandler.getToken();
-  const projectId = (document.querySelector(
-    "lupyd-firebase",
-  ) as LupydFirebaseElement)!.app.options.projectId;
+  const projectId = fbElement()!.app.options.projectId;
   if (!username || !token || !projectId) {
     return undefined;
   }

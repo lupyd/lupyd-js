@@ -4,4 +4,7 @@ export * from "./api/post";
 export * from "./api/user";
 export * from "./firebase/element";
 export * from "./firebase/auth";
-export * from "./databases";
+export * as PostProtos from "./protos/post";
+export * as UserProtos from "./protos/user";
+export * as ChatProtos from "./protos/chats";
+export * as MdProtos from "./protos/lupyd-md";

@@ -6,6 +6,7 @@ exports.updateUserDocFollows = updateUserDocFollows;
 const utils_1 = require("../bin/utils");
 const auth_1 = require("../firebase/auth");
 const vanjs_core_1 = require("vanjs-core");
+const element_1 = require("../firebase/element");
 const constants_1 = require("../constants");
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
 let localUserFollows = vanjs_core_1.default.state([]);
@@ -43,7 +44,7 @@ exports.unfollowUsers = unfollowUsers;
 async function fetchUserDoc() {
     const username = await auth_1.AuthHandler.getUsername();
     const token = await auth_1.AuthHandler.getToken();
-    const projectId = document.querySelector("lupyd-firebase").app.options.projectId;
+    const projectId = (0, element_1.fbElement)().app.options.projectId;
     if (!username || !token || !projectId) {
         return undefined;
     }
@@ -61,7 +62,7 @@ async function updateUserDocFollows(usersAffected, removeThem) {
     }
     const username = await auth_1.AuthHandler.getUsername();
     const token = await auth_1.AuthHandler.getToken();
-    const projectId = document.querySelector("lupyd-firebase").app.options.projectId;
+    const projectId = (0, element_1.fbElement)().app.options.projectId;
     if (!username || !token || !projectId) {
         return undefined;
     }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dateToRelativeString = exports.sanitizeFilename = exports.fetchWithProgress = exports.markdownToHTMLElement = exports.tryCatchIfUndefine = exports.DisposableWebComponent = exports.cacheBuster = exports.ulidFromString = exports.ulidStringify = exports._getTimeZoneOffsetInMs = exports.timestampToDatetimeInputString = exports.generateUlidAsBase77 = exports.getTimestampFromUlid = exports.generateUlid = exports.base32 = exports.base58 = exports.base77 = exports.setQueryParams = exports.random = exports.Random = exports.Utils = exports.base64UrlDecode = exports.launchDeepLink = void 0;
+exports.dateToRelativeString = exports.sanitizeFilename = exports.fetchWithProgress = exports.tryCatchIfUndefine = exports.cacheBuster = exports.ulidFromString = exports.ulidStringify = exports._getTimeZoneOffsetInMs = exports.timestampToDatetimeInputString = exports.generateUlidAsBase77 = exports.getTimestampFromUlid = exports.generateUlid = exports.base32 = exports.base58 = exports.base77 = exports.setQueryParams = exports.random = exports.Random = exports.Utils = exports.base64UrlDecode = exports.launchDeepLink = void 0;
 exports.areListsEqual = areListsEqual;
 exports.isValidUsername = isValidUsername;
 exports.arrayBufferToString = arrayBufferToString;
@@ -10,7 +10,6 @@ exports.UiIcon = UiIcon;
 const id128_1 = require("id128");
 const base_x_1 = require("base-x");
 const constants_1 = require("../constants");
-const markdown_1 = require("./markdown");
 const vanjs_core_1 = require("vanjs-core");
 const lucide_1 = require("lucide");
 const icons_1 = require("./icons");
@@ -316,28 +315,31 @@ exports.ulidFromString = ulidFromString;
 const cacheBuster = (durationInSeconds) => Math.floor(Date.now() / (durationInSeconds * 1000)) *
     (durationInSeconds * 1000);
 exports.cacheBuster = cacheBuster;
-class DisposableWebComponent extends HTMLElement {
-    onConnected;
-    onDisconnected;
-    constructor(onConnected, onDisconnected, ...children) {
-        super();
-        this.onConnected = onConnected;
-        this.onDisconnected = onDisconnected;
-        this.replaceChildren(...children);
-    }
-    connectedCallback() {
-        if (this.onConnected) {
-            this.onConnected();
-        }
-    }
-    disconnectedCallback() {
-        if (this.onDisconnected) {
-            this.onDisconnected();
-        }
-    }
-}
-exports.DisposableWebComponent = DisposableWebComponent;
-customElements.define("same-as-div", DisposableWebComponent);
+// export class DisposableWebComponent extends HTMLElement {
+//   private readonly onConnected?: () => void;
+//   private readonly onDisconnected?: () => void;
+//   constructor(
+//     onConnected?: () => void,
+//     onDisconnected?: () => void,
+//     ...children: HTMLElement[]
+//   ) {
+//     super();
+//     this.onConnected = onConnected;
+//     this.onDisconnected = onDisconnected;
+//     this.replaceChildren(...children);
+//   }
+//   connectedCallback() {
+//     if (this.onConnected) {
+//       this.onConnected();
+//     }
+//   }
+//   disconnectedCallback() {
+//     if (this.onDisconnected) {
+//       this.onDisconnected();
+//     }
+//   }
+// }
+// customElements.define("same-as-div", DisposableWebComponent);
 const tryCatchIfUndefine = (f) => {
     try {
         return f();
@@ -347,7 +349,6 @@ const tryCatchIfUndefine = (f) => {
     }
 };
 exports.tryCatchIfUndefine = tryCatchIfUndefine;
-exports.markdownToHTMLElement = markdown_1.markdownToHtmlElement;
 // export const isDarkMode = van.state(store.get("darkMode") ?? false);
 // van.derive(() => {
 //   (document.getElementById("icon")! as HTMLLinkElement).href = isDarkMode.val
@@ -440,6 +441,9 @@ const dateToRelativeString = (date) => {
     const ONE_HOUR = ONE_MINUTE * 60;
     const ONE_DAY = ONE_HOUR * 24;
     const ONE_YEAR = ONE_DAY * 365;
+    if (difference < ONE_MINUTE) {
+        return `just now`;
+    }
     if (difference > 0) {
         const years = Math.floor(difference / ONE_YEAR);
         if (years > 0) {

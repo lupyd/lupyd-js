@@ -1,7 +1,6 @@
 import { Ulid } from "id128";
 import base from "base-x";
 import { rawUsernameRegex } from "../constants";
-import { markdownToHtmlElement } from "./markdown";
 import van from "vanjs-core";
 import { createElement, IconNode } from "lucide";
 import { getIcon } from "./icons";
@@ -380,35 +379,35 @@ export const cacheBuster = (durationInSeconds: number) =>
   Math.floor(Date.now() / (durationInSeconds * 1000)) *
   (durationInSeconds * 1000);
 
-export class DisposableWebComponent extends HTMLElement {
-  private readonly onConnected?: () => void;
-  private readonly onDisconnected?: () => void;
+// export class DisposableWebComponent extends HTMLElement {
+//   private readonly onConnected?: () => void;
+//   private readonly onDisconnected?: () => void;
 
-  constructor(
-    onConnected?: () => void,
-    onDisconnected?: () => void,
-    ...children: HTMLElement[]
-  ) {
-    super();
-    this.onConnected = onConnected;
-    this.onDisconnected = onDisconnected;
-    this.replaceChildren(...children);
-  }
+//   constructor(
+//     onConnected?: () => void,
+//     onDisconnected?: () => void,
+//     ...children: HTMLElement[]
+//   ) {
+//     super();
+//     this.onConnected = onConnected;
+//     this.onDisconnected = onDisconnected;
+//     this.replaceChildren(...children);
+//   }
 
-  connectedCallback() {
-    if (this.onConnected) {
-      this.onConnected();
-    }
-  }
+//   connectedCallback() {
+//     if (this.onConnected) {
+//       this.onConnected();
+//     }
+//   }
 
-  disconnectedCallback() {
-    if (this.onDisconnected) {
-      this.onDisconnected();
-    }
-  }
-}
+//   disconnectedCallback() {
+//     if (this.onDisconnected) {
+//       this.onDisconnected();
+//     }
+//   }
+// }
 
-customElements.define("same-as-div", DisposableWebComponent);
+// customElements.define("same-as-div", DisposableWebComponent);
 
 export const tryCatchIfUndefine = <T,>(f: () => T) => {
   try {
@@ -417,8 +416,6 @@ export const tryCatchIfUndefine = <T,>(f: () => T) => {
     console.warn(err);
   }
 };
-
-export const markdownToHTMLElement = markdownToHtmlElement;
 
 // export const isDarkMode = van.state(store.get("darkMode") ?? false);
 
@@ -551,6 +548,10 @@ export const dateToRelativeString = (date: Date) => {
   const ONE_HOUR = ONE_MINUTE * 60;
   const ONE_DAY = ONE_HOUR * 24;
   const ONE_YEAR = ONE_DAY * 365;
+
+  if (difference < ONE_MINUTE) {
+    return `just now`;
+  }
 
   if (difference > 0) {
     const years = Math.floor(difference / ONE_YEAR);

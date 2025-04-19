@@ -17,9 +17,12 @@ import {
 } from "firebase/auth";
 import store from "store2";
 import { FullUser } from "../protos/user";
-import { LupydFirebaseElement } from "./element";
-import { clearEverything } from "../databases";
+import { fbElement, LupydFirebaseElement } from "./element";
+// import { clearEverything } from "../databases";
 import { API_CDN_URL, CREATE_USER_FUNC_URL } from "../constants";
+
+const clearEverything = async () =>
+  console.error("Local Databases are not implemented");
 
 export namespace AuthHandler {
   export async function deleteAccount() {
@@ -36,18 +39,15 @@ export namespace AuthHandler {
   }
 
   export function currentUser() {
-    return (document.querySelector("lupyd-firebase") as LupydFirebaseElement)
-      .currentUser;
+    return fbElement().currentUser;
   }
 
   export function currentUsername() {
-    return (document.querySelector("lupyd-firebase") as LupydFirebaseElement)
-      .currentUsername;
+    return fbElement().currentUsername;
   }
 
   export function getAuth() {
-    return (document.querySelector("lupyd-firebase") as LupydFirebaseElement)
-      .auth;
+    return fbElement().auth;
   }
   export async function sendVerificationMail(user: User) {
     return sendEmailVerification(user, {

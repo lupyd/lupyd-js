@@ -1,4 +1,6 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+"use client";
+
+import { initializeApp, FirebaseApp, FirebaseOptions } from "firebase/app";
 import {
   User,
   browserLocalPersistence,
@@ -7,11 +9,11 @@ import {
   onAuthStateChanged,
   Auth as FirebaseAuth,
 } from "firebase/auth";
-import van from "vanjs-core";
 import { AuthHandler } from "./auth";
 import { getUserData } from "../doc/user";
 import store from "store2";
 import "../constants";
+import van, { State } from "vanjs-core";
 import {
   API_CDN_URL,
   API_URL,
@@ -19,7 +21,6 @@ import {
   CREATE_USER_CHAT_FUNC_URL,
   CREATE_USER_FUNC_URL,
   DEFAULT_USER_ICON,
-  FIREBASE_CONFIG,
   FIRESTORE_BASE_URL,
   LUPYD_VERSION,
   MAX_TOTAL_FILES_SIZE,
@@ -29,12 +30,12 @@ import {
 export const FUNCTIONS_REGION = "asia-south1";
 
 // A Singleton Model designed by the Modern Web Standard
-
-export class LupydFirebaseElement extends HTMLElement {
+//
+export class LupydFirebaseElement {
   app: FirebaseApp;
   auth: FirebaseAuth;
-  currentUser = van.state<User | null>(null);
-  currentUsername = van.state<string | null>(null);
+  currentUser: State<User | null> = van.state(null);
+  currentUsername: State<string | null> = van.state(null);
   constants = {
     MAX_TOTAL_FILES_SIZE,
     DEFAULT_USER_ICON,
@@ -46,17 +47,21 @@ export class LupydFirebaseElement extends HTMLElement {
     MOBILE_MAX_WIDTH_PX,
     CREATE_USER_CHAT_FUNC_URL,
     LUPYD_VERSION,
-    FIREBASE_CONFIG,
   };
 
-  constructor() {
-    super();
-    this.app = initializeApp(FIREBASE_CONFIG);
+  onAuthStateChange: (username: string, user: User) => void;
+
+  constructor(
+    config: FirebaseOptions,
+    onAuthStateChange: (username: string, user: User) => void = (_, __) => {},
+  ) {
+    this.onAuthStateChange = onAuthStateChange;
+    this.app = initializeApp(config);
     this.auth = initializeAuth(this.app, {
       persistence: browserLocalPersistence,
     });
     this.initializeAuth();
-    if (process.env.JS_ENV_EMULATOR_MODE == "true") {
+    if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE == "true") {
       connectAuthEmulator(this.auth, "http://127.0.0.1:9099", {
         disableWarnings: true,
       });
@@ -76,6 +81,7 @@ export class LupydFirebaseElement extends HTMLElement {
     onAuthStateChanged(this.auth, (user) => {
       console.log(`Auth State Changed: `, user);
       this.currentUser.val = user;
+      this.onAuthStateChange(null, user);
       if (user) {
         if (user.email) {
           store.set("email", user.email);
@@ -85,6 +91,7 @@ export class LupydFirebaseElement extends HTMLElement {
             getUserData().then(console.log).catch(console.error);
             store.set("username", username);
             this.currentUsername.val = username;
+            this.onAuthStateChange(username, user);
           }
         });
       }
@@ -96,7 +103,20 @@ export class LupydFirebaseElement extends HTMLElement {
   // }
 }
 
-customElements.define("lupyd-firebase", LupydFirebaseElement);
+// customElements.define("lupyd-firebase", LupydFirebaseElement);
 
-export const fbElement = () =>
-  document.querySelector("lupyd-firebase") as LupydFirebaseElement;
+let _fbElement: LupydFirebaseElement | undefined = undefined;
+
+export const fbElement = () => {
+  if (typeof window === "undefined") return undefined;
+  if (!_fbElement) {
+    if (process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG) {
+      const config = JSON.parse(
+        atob(process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG),
+      );
+      _fbElement = new LupydFirebaseElement(config);
+    }
+  }
+
+  return _fbElement;
+};

@@ -64,13 +64,6 @@ export interface File {
     mimeType: string;
     length: bigint;
 }
-export interface GetPostsData {
-    allowedPostTypes: number;
-    by: string[];
-    allPosts: boolean;
-    cursor: Uint8Array;
-    tags: string;
-}
 export interface FullPosts {
     posts: FullPost[];
 }
@@ -127,7 +120,6 @@ export declare const FullPost: MessageFns<FullPost>;
 export declare const CreatePostDetails: MessageFns<CreatePostDetails>;
 export declare const CreatePostWithFiles: MessageFns<CreatePostWithFiles>;
 export declare const File: MessageFns<File>;
-export declare const GetPostsData: MessageFns<GetPostsData>;
 export declare const FullPosts: MessageFns<FullPosts>;
 export declare const Votes: MessageFns<Votes>;
 export declare const Vote: MessageFns<Vote>;

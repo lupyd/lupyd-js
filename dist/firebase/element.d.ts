@@ -1,12 +1,13 @@
-import { FirebaseApp } from "firebase/app";
+import { FirebaseApp, FirebaseOptions } from "firebase/app";
 import { User, Auth as FirebaseAuth } from "firebase/auth";
 import "../constants";
+import { State } from "vanjs-core";
 export declare const FUNCTIONS_REGION = "asia-south1";
-export declare class LupydFirebaseElement extends HTMLElement {
+export declare class LupydFirebaseElement {
     app: FirebaseApp;
     auth: FirebaseAuth;
-    currentUser: import("vanjs-core").State<User>;
-    currentUsername: import("vanjs-core").State<string>;
+    currentUser: State<User | null>;
+    currentUsername: State<string | null>;
     constants: {
         MAX_TOTAL_FILES_SIZE: number;
         DEFAULT_USER_ICON: string;
@@ -18,9 +19,9 @@ export declare class LupydFirebaseElement extends HTMLElement {
         MOBILE_MAX_WIDTH_PX: number;
         CREATE_USER_CHAT_FUNC_URL: string;
         LUPYD_VERSION: string;
-        FIREBASE_CONFIG: any;
     };
-    constructor();
+    onAuthStateChange: (username: string, user: User) => void;
+    constructor(config: FirebaseOptions, onAuthStateChange?: (username: string, user: User) => void);
     initializeAuth(): void;
 }
 export declare const fbElement: () => LupydFirebaseElement;

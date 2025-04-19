@@ -18,12 +18,6 @@ import {
   ulidStringify,
   Utils,
 } from "../bin/utils";
-import store from "store2";
-import {
-  LupydDatabasesElement,
-  POSTS_DB_STORE_NAME,
-  VOTES_DB_STORE_NAME,
-} from "../databases";
 
 export const getPost = async (id: string) => {
   const url = `${API_URL}/post/${id}`;
@@ -139,44 +133,53 @@ export const getPosts = async (getPostDetails: GetPostsData) => {
       const posts = FullPosts.decode(
         new Uint8Array(await response.arrayBuffer()),
       ).posts;
-      const db = (
-        document.querySelector("lupyd-databases") as LupydDatabasesElement
-      ).localDb;
-
-      if (db) {
-        if (!token) {
-          const username = store.get("username");
-          if (username) {
-            const transaction = db.transaction(VOTES_DB_STORE_NAME);
-            await Promise.all(
-              posts.map(async (post) => {
-                const row = await transaction.store.get(ulidStringify(post.id));
-                if (row && row.by == username) {
-                  post.vote =
-                    typeof row.val === "boolean"
-                      ? BoolValue.create({ val: row.val })
-                      : undefined;
-                }
-              }),
-            );
-          }
-        } else {
-          const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
-          await Promise.all(
-            posts.map((post) =>
-              tx.store.put({ val: post.vote?.val }, ulidStringify(post.id)),
-            ),
-          );
-          await tx.done;
-        }
-        const tx = db.transaction(POSTS_DB_STORE_NAME, "readwrite");
-        await Promise.all(
-          posts.map((post) => tx.store.put(post, ulidStringify(post.id))),
-        );
-        await tx.done;
-      }
 
       return posts;
+
+      // const ldb = document.querySelector("lupyd-databases") as
+      //   | undefined
+      //   | LupydDatabasesElement;
+
+      // if (!ldb) {
+      //   return posts;
+      // }
+
+      // const db = ldb.localDb;
+      // if (!db) {
+      //   return posts;
+      // }
+      // if (!token) {
+      //   const username = store.get("username");
+      //   if (username) {
+      //     const transaction = db.transaction(VOTES_DB_STORE_NAME);
+      //     await Promise.all(
+      //       posts.map(async (post) => {
+      //         const row = await transaction.store.get(ulidStringify(post.id));
+      //         if (row && row.by == username) {
+      //           post.vote =
+      //             typeof row.val === "boolean"
+      //               ? BoolValue.create({ val: row.val })
+      //               : undefined;
+      //         }
+      //       }),
+      //     );
+      //   }
+      // } else {
+      //   const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
+      //   await Promise.all(
+      //     posts.map((post) =>
+      //       tx.store.put({ val: post.vote?.val }, ulidStringify(post.id)),
+      //     ),
+      //   );
+      //   await tx.done;
+      // }
+      // const tx = db.transaction(POSTS_DB_STORE_NAME, "readwrite");
+      // await Promise.all(
+      //   posts.map((post) => tx.store.put(post, ulidStringify(post.id))),
+      // );
+      // await tx.done;
+
+      // return posts;
     } else {
       console.error(`${url} [${response.status}] ${await response.text()}`);
     }
@@ -231,9 +234,9 @@ export const putVote = (vote: Vote) => {
 
 export const putVotes = async (votes: Vote[]) => {
   try {
-    const db = (
-      document.querySelector("lupyd-databases") as LupydDatabasesElement
-    ).localDb;
+    // const db = (
+    //   document.querySelector("lupyd-databases") as LupydDatabasesElement
+    // ).localDb;
     const url = `${API_URL}/vote`;
     const token = await AuthHandler.getToken();
     if (!token) {
@@ -251,18 +254,18 @@ export const putVotes = async (votes: Vote[]) => {
     if (response.status === 200) {
       console.log(`Successfully voted`);
       const username = await AuthHandler.getUsername();
-      if (db) {
-        const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
-        await Promise.all(
-          votes.map((vote) =>
-            tx.store.put(
-              { id: vote.id, val: vote.val?.val, by: username },
-              ulidStringify(vote.id),
-            ),
-          ),
-        );
-        await tx.done;
-      }
+      // if (db) {
+      //   const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
+      //   await Promise.all(
+      //     votes.map((vote) =>
+      //       tx.store.put(
+      //         { id: vote.id, val: vote.val?.val, by: username },
+      //         ulidStringify(vote.id),
+      //       ),
+      //     ),
+      //   );
+      //   await tx.done;
+      // }
     } else {
       console.error(`${url} [${response.status}] ${await response.text()}`);
     }

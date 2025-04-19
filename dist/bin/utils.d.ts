@@ -52,15 +52,7 @@ export declare const _getTimeZoneOffsetInMs: () => number;
 export declare const ulidStringify: (ulid: Uint8Array) => string;
 export declare const ulidFromString: (s: string) => Uint8Array<ArrayBufferLike>;
 export declare const cacheBuster: (durationInSeconds: number) => number;
-export declare class DisposableWebComponent extends HTMLElement {
-    private readonly onConnected?;
-    private readonly onDisconnected?;
-    constructor(onConnected?: () => void, onDisconnected?: () => void, ...children: HTMLElement[]);
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-}
 export declare const tryCatchIfUndefine: <T>(f: () => T) => T;
-export declare const markdownToHTMLElement: (markdown: string, pickedFileUrls?: PickedFileUrl[]) => HTMLElement;
 export declare function UiIcon(i: string | IconNode): HTMLSpanElement;
 export interface ResponseInit {
     status: number;

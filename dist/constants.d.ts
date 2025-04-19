@@ -21,4 +21,3 @@ export declare const rawUsernameRegex: RegExp;
 export declare const rawQuoteRegex: RegExp;
 export declare const rawHyperLinkRegex: RegExp;
 export declare const rawEmailRegex: RegExp;
-export declare const FIREBASE_CONFIG: any;

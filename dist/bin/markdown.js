@@ -6,22 +6,25 @@ const micromark_extension_gfm_strikethrough_1 = require("micromark-extension-gfm
 const vanjs_core_1 = require("vanjs-core");
 const utils_1 = require("./utils");
 const { link, span, div, audio, video } = vanjs_core_1.default.tags;
-const mediaObserver = new IntersectionObserver((e) => {
-    e.forEach((v) => {
-        const media = v.target;
-        if (v.intersectionRatio !== 1 &&
-            (media.tagName == "VIDEO" || media.tagName == "AUDIO") &&
-            !media.paused) {
-            media.pause();
-        }
-        if (v.isIntersecting) {
-            const src = media.getAttribute("data-src");
-            if (src && media.src != src) {
-                media.src = src;
+let _mediaObserver = null;
+if (typeof window != undefined && "IntersectionObserver" in window) {
+    _mediaObserver = new IntersectionObserver((e) => {
+        e.forEach((v) => {
+            const media = v.target;
+            if (v.intersectionRatio !== 1 &&
+                (media.tagName == "VIDEO" || media.tagName == "AUDIO") &&
+                !media.paused) {
+                media.pause();
             }
-        }
-    });
-}, { threshold: 0.2 });
+            if (v.isIntersecting) {
+                const src = media.getAttribute("data-src");
+                if (src && media.src != src) {
+                    media.src = src;
+                }
+            }
+        });
+    }, { threshold: 0.2 });
+}
 const micromarkExtensions = new Map();
 micromarkExtensions.set("strike-through", [
     micromark_extension_gfm_strikethrough_1.gfmStrikethrough,
@@ -64,7 +67,7 @@ const syncMarkdownToHTMLElement = (markdown, pickedFileUrls) => {
             });
             videoEl.setAttribute("data-src", src);
             anchor.replaceWith(div({ class: "center" }, videoEl));
-            mediaObserver.observe(videoEl);
+            _mediaObserver?.observe(videoEl);
         }
         else if (anchor.textContent && anchor.textContent.startsWith("|Audio|")) {
             const title = (anchor.textContent ?? "").replace("|Audio|", "");
@@ -75,7 +78,7 @@ const syncMarkdownToHTMLElement = (markdown, pickedFileUrls) => {
             });
             audioEl.setAttribute("data-src", src);
             anchor.replaceWith(div({ class: "center" }, audioEl));
-            mediaObserver.observe(audioEl);
+            _mediaObserver?.observe(audioEl);
         }
         else if (anchor.textContent && anchor.textContent.startsWith("|File|")) {
             let title = (anchor.textContent ?? "").replace("|File|", "");

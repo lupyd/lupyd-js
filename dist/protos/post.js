@@ -5,7 +5,7 @@
 //   protoc               v6.30.1
 // source: post.proto
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostReport = exports.PollUserVotes = exports.PollUserVote = exports.CreatePollFields = exports.PollResults = exports.PollResult = exports.PollOption = exports.PollVote = exports.CreateFileFields = exports.PostIds = exports.Vote = exports.Votes = exports.FullPosts = exports.GetPostsData = exports.File = exports.CreatePostWithFiles = exports.CreatePostDetails = exports.FullPost = exports.PostBodies = exports.PostBody = exports.BoolValue = exports.postType = exports.protobufPackage = void 0;
+exports.PostReport = exports.PollUserVotes = exports.PollUserVote = exports.CreatePollFields = exports.PollResults = exports.PollResult = exports.PollOption = exports.PollVote = exports.CreateFileFields = exports.PostIds = exports.Vote = exports.Votes = exports.FullPosts = exports.File = exports.CreatePostWithFiles = exports.CreatePostDetails = exports.FullPost = exports.PostBodies = exports.PostBody = exports.BoolValue = exports.postType = exports.protobufPackage = void 0;
 exports.postTypeFromJSON = postTypeFromJSON;
 exports.postTypeToJSON = postTypeToJSON;
 /* eslint-disable */
@@ -816,119 +816,6 @@ exports.File = {
         message.name = object.name ?? "";
         message.mimeType = object.mimeType ?? "";
         message.length = object.length ?? 0n;
-        return message;
-    },
-};
-function createBaseGetPostsData() {
-    return { allowedPostTypes: 0, by: [], allPosts: false, cursor: new Uint8Array(0), tags: "" };
-}
-exports.GetPostsData = {
-    encode(message, writer = new wire_1.BinaryWriter()) {
-        if (message.allowedPostTypes !== 0) {
-            writer.uint32(8).uint32(message.allowedPostTypes);
-        }
-        for (const v of message.by) {
-            writer.uint32(18).string(v);
-        }
-        if (message.allPosts !== false) {
-            writer.uint32(24).bool(message.allPosts);
-        }
-        if (message.cursor.length !== 0) {
-            writer.uint32(34).bytes(message.cursor);
-        }
-        if (message.tags !== "") {
-            writer.uint32(42).string(message.tags);
-        }
-        return writer;
-    },
-    decode(input, length) {
-        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
-        let end = length === undefined ? reader.len : reader.pos + length;
-        const message = createBaseGetPostsData();
-        while (reader.pos < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1: {
-                    if (tag !== 8) {
-                        break;
-                    }
-                    message.allowedPostTypes = reader.uint32();
-                    continue;
-                }
-                case 2: {
-                    if (tag !== 18) {
-                        break;
-                    }
-                    message.by.push(reader.string());
-                    continue;
-                }
-                case 3: {
-                    if (tag !== 24) {
-                        break;
-                    }
-                    message.allPosts = reader.bool();
-                    continue;
-                }
-                case 4: {
-                    if (tag !== 34) {
-                        break;
-                    }
-                    message.cursor = reader.bytes();
-                    continue;
-                }
-                case 5: {
-                    if (tag !== 42) {
-                        break;
-                    }
-                    message.tags = reader.string();
-                    continue;
-                }
-            }
-            if ((tag & 7) === 4 || tag === 0) {
-                break;
-            }
-            reader.skip(tag & 7);
-        }
-        return message;
-    },
-    fromJSON(object) {
-        return {
-            allowedPostTypes: isSet(object.allowedPostTypes) ? globalThis.Number(object.allowedPostTypes) : 0,
-            by: globalThis.Array.isArray(object?.by) ? object.by.map((e) => globalThis.String(e)) : [],
-            allPosts: isSet(object.allPosts) ? globalThis.Boolean(object.allPosts) : false,
-            cursor: isSet(object.cursor) ? bytesFromBase64(object.cursor) : new Uint8Array(0),
-            tags: isSet(object.tags) ? globalThis.String(object.tags) : "",
-        };
-    },
-    toJSON(message) {
-        const obj = {};
-        if (message.allowedPostTypes !== 0) {
-            obj.allowedPostTypes = Math.round(message.allowedPostTypes);
-        }
-        if (message.by?.length) {
-            obj.by = message.by;
-        }
-        if (message.allPosts !== false) {
-            obj.allPosts = message.allPosts;
-        }
-        if (message.cursor.length !== 0) {
-            obj.cursor = base64FromBytes(message.cursor);
-        }
-        if (message.tags !== "") {
-            obj.tags = message.tags;
-        }
-        return obj;
-    },
-    create(base) {
-        return exports.GetPostsData.fromPartial(base ?? {});
-    },
-    fromPartial(object) {
-        const message = createBaseGetPostsData();
-        message.allowedPostTypes = object.allowedPostTypes ?? 0;
-        message.by = object.by?.map((e) => e) || [];
-        message.allPosts = object.allPosts ?? false;
-        message.cursor = object.cursor ?? new Uint8Array(0);
-        message.tags = object.tags ?? "";
         return message;
     },
 };

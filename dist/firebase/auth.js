@@ -4,8 +4,10 @@ exports.AuthHandler = void 0;
 const auth_1 = require("firebase/auth");
 const store2_1 = require("store2");
 const user_1 = require("../protos/user");
-const databases_1 = require("../databases");
+const element_1 = require("./element");
+// import { clearEverything } from "../databases";
 const constants_1 = require("../constants");
+const clearEverything = async () => console.error("Local Databases are not implemented");
 var AuthHandler;
 (function (AuthHandler) {
     async function deleteAccount() {
@@ -13,7 +15,7 @@ var AuthHandler;
         if (user) {
             await user.delete();
         }
-        await (0, databases_1.clearEverything)();
+        await clearEverything();
     }
     AuthHandler.deleteAccount = deleteAccount;
     async function createUser(email, password) {
@@ -22,18 +24,15 @@ var AuthHandler;
     }
     AuthHandler.createUser = createUser;
     function currentUser() {
-        return document.querySelector("lupyd-firebase")
-            .currentUser;
+        return (0, element_1.fbElement)().currentUser;
     }
     AuthHandler.currentUser = currentUser;
     function currentUsername() {
-        return document.querySelector("lupyd-firebase")
-            .currentUsername;
+        return (0, element_1.fbElement)().currentUsername;
     }
     AuthHandler.currentUsername = currentUsername;
     function getAuth() {
-        return document.querySelector("lupyd-firebase")
-            .auth;
+        return (0, element_1.fbElement)().auth;
     }
     AuthHandler.getAuth = getAuth;
     async function sendVerificationMail(user) {
@@ -76,7 +75,7 @@ var AuthHandler;
     async function signOut() {
         await (0, auth_1.signOut)(getAuth());
         console.log("User Sign out successful");
-        (0, databases_1.clearEverything)();
+        clearEverything();
     }
     AuthHandler.signOut = signOut;
     async function signUp(user, pfpUrl = undefined) {
