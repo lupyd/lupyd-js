@@ -49,23 +49,33 @@ class LupydFirebaseElement {
             });
         }
     }
+    setOnAuthStateChangeCallback(onAuthStateChange) {
+        this.onAuthStateChange = onAuthStateChange;
+    }
     initializeAuth() {
         (0, auth_1.onAuthStateChanged)(this.auth, (user) => {
             console.log(`Auth State Changed: `, user);
             this.currentUser.val = user;
-            this.onAuthStateChange(null, user);
             if (user) {
                 if (user.email) {
                     store2_1.default.set("email", user.email);
                 }
-                auth_2.AuthHandler.getUsername(user).then((username) => {
+                auth_2.AuthHandler.getUsername(user)
+                    .then((username) => {
                     if (username) {
                         (0, user_1.getUserData)().then(console.log).catch(console.error);
                         store2_1.default.set("username", username);
                         this.currentUsername.val = username;
                         this.onAuthStateChange(username, user);
                     }
+                })
+                    .catch((err) => {
+                    console.error(err);
+                    this.onAuthStateChange(null, user);
                 });
+            }
+            else {
+                this.onAuthStateChange(null, null);
             }
         });
     }
