@@ -77,23 +77,35 @@ export class LupydFirebaseElement {
     }
   }
 
+  setOnAuthStateChangeCallback(
+    onAuthStateChange: (username: string, user: User) => void,
+  ) {
+    this.onAuthStateChange = onAuthStateChange;
+  }
+
   initializeAuth() {
     onAuthStateChanged(this.auth, (user) => {
       console.log(`Auth State Changed: `, user);
       this.currentUser.val = user;
-      this.onAuthStateChange(null, user);
       if (user) {
         if (user.email) {
           store.set("email", user.email);
         }
-        AuthHandler.getUsername(user).then((username) => {
-          if (username) {
-            getUserData().then(console.log).catch(console.error);
-            store.set("username", username);
-            this.currentUsername.val = username;
-            this.onAuthStateChange(username, user);
-          }
-        });
+        AuthHandler.getUsername(user)
+          .then((username) => {
+            if (username) {
+              getUserData().then(console.log).catch(console.error);
+              store.set("username", username);
+              this.currentUsername.val = username;
+              this.onAuthStateChange(username, user);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            this.onAuthStateChange(null, user);
+          });
+      } else {
+        this.onAuthStateChange(null, null);
       }
     });
   }
