@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CallRTDBSession = exports.stringifyCallState = exports.CallState = exports.CallSession = void 0;
 const element_1 = require("../firebase/element");
@@ -176,7 +209,7 @@ class CallRTDBSession {
         this.session = new CallSession(config, (ice) => this.sendMessage({ ice: ice.toJSON() }), (ev, er) => this.onDisrupt(ev, er));
     }
     async startCall() {
-        const { getDatabase, ref, onChildAdded } = await Promise.resolve().then(() => require("firebase/database"));
+        const { getDatabase, ref, onChildAdded } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         const config = await (0, call_1.getWebrtcConfig)();
         this.newCallSession(config);
         const desc = await this.session.startCall();
@@ -209,7 +242,7 @@ class CallRTDBSession {
         });
     }
     async acceptCall() {
-        const { getDatabase, ref, onChildAdded } = await Promise.resolve().then(() => require("firebase/database"));
+        const { getDatabase, ref, onChildAdded } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         const config = await (0, call_1.getWebrtcConfig)();
         this.newCallSession(config);
         const db = getDatabase((0, element_1.fbElement)().app);
@@ -245,7 +278,7 @@ class CallRTDBSession {
             by: this.me,
             ...msg,
         };
-        const { set, getDatabase, ref } = await Promise.resolve().then(() => require("firebase/database"));
+        const { set, getDatabase, ref } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         await set(ref(getDatabase((0, element_1.fbElement)().app), `${this.rootRef}/${id}`), payload);
         console.log({ payload, id });
     }
@@ -253,7 +286,7 @@ class CallRTDBSession {
         if ([CallState.None, CallState.Ended].some((e) => e == this._state)) {
             return;
         }
-        const { getDatabase, ref, remove } = await Promise.resolve().then(() => require("firebase/database"));
+        const { getDatabase, ref, remove } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         if (this.unsubscribe)
             this.unsubscribe();
         this.session.close();

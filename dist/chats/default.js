@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatSession = exports.getTimestampFromMsgKeys = exports.generateMessageId = void 0;
 const element_1 = require("../firebase/element");
@@ -59,7 +92,7 @@ class ChatSession {
                 }
             });
         };
-        Promise.resolve().then(() => require("firebase/database")).then(async ({ getDatabase, onChildAdded, ref, onChildChanged, startAt, query, orderByKey, limitToLast, get, }) => {
+        Promise.resolve().then(() => __importStar(require("firebase/database"))).then(async ({ getDatabase, onChildAdded, ref, onChildChanged, startAt, query, orderByKey, limitToLast, get, }) => {
             const db = getDatabase((0, element_1.fbElement)().app);
             if (!lastMessage) {
                 const message = await get(ref(db, `lastMsgs/${sender}/${receiver}`));
@@ -139,7 +172,7 @@ class ChatSession {
     async sendMessage(text) {
         const ts = new Date();
         const msgId = (0, exports.generateMessageId)(Number(ts));
-        const { set, ref, getDatabase } = await Promise.resolve().then(() => require("firebase/database"));
+        const { set, ref, getDatabase } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         const db = getDatabase((0, element_1.fbElement)().app);
         await set(ref(db, `${this.senderRef}/${msgId}`), text);
         const id = msgId.replace("/", "");
@@ -147,7 +180,7 @@ class ChatSession {
         return { id, msg: text, by: this.sender, ts };
     }
     async updateMessage(id, text) {
-        const { set, ref, getDatabase } = await Promise.resolve().then(() => require("firebase/database"));
+        const { set, ref, getDatabase } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         const db = getDatabase((0, element_1.fbElement)().app);
         const msgId = `${id.slice(0, SPLIT_MSG_ID_INDEX_AT)}/${id.slice(SPLIT_MSG_ID_INDEX_AT)}`;
         await set(ref(db, `${this.senderRef}/${msgId}`), text);
@@ -166,7 +199,7 @@ class ChatSession {
                 by: by,
                 ts: (0, exports.getTimestampFromMsgKeys)(id),
             };
-            const { set, ref, getDatabase } = await Promise.resolve().then(() => require("firebase/database"));
+            const { set, ref, getDatabase } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
             const db = getDatabase((0, element_1.fbElement)().app);
             await set(ref(db, `lastMsgs/${this.sender}/${this.receiver}`), {
                 id: id,
@@ -180,7 +213,7 @@ class ChatSession {
         }
     }
     async getPreviousChunk(lastRootMsgId, limit = 1) {
-        const { get, query, ref, getDatabase, endBefore, limitToLast, orderByKey } = await Promise.resolve().then(() => require("firebase/database"));
+        const { get, query, ref, getDatabase, endBefore, limitToLast, orderByKey } = await Promise.resolve().then(() => __importStar(require("firebase/database")));
         const db = getDatabase((0, element_1.fbElement)().app);
         if (lastRootMsgId.length > SPLIT_MSG_ID_INDEX_AT) {
             lastRootMsgId = lastRootMsgId.slice(0, SPLIT_MSG_ID_INDEX_AT);

@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthHandler = void 0;
 const auth_1 = require("firebase/auth");
-const store2_1 = require("store2");
+const store2_1 = __importDefault(require("store2"));
 const user_1 = require("../protos/user");
 const element_1 = require("./element");
 // import { clearEverything } from "../databases";

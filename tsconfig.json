@@ -4,6 +4,7 @@
     "target": "esnext",
     "skipLibCheck": true,
     "declaration": true,
+    "esModuleInterop": true,
     "outDir": "./dist"
   },
   "include": [

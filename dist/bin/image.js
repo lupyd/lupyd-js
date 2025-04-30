@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertImageToWebp = exports.readFileAsDataUrl = void 0;
-const vanjs_core_1 = require("vanjs-core");
+const vanjs_core_1 = __importDefault(require("vanjs-core"));
 const { canvas } = vanjs_core_1.default.tags;
 const readFileAsDataUrl = (blob) => {
     return new Promise((res, rej) => {

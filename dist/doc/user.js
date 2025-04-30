@@ -1,11 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unfollowUsers = exports.followUsers = exports.getUserData = exports.getDissaperaingMessagesState = exports.getFollowedUsersState = void 0;
 exports.fetchUserDoc = fetchUserDoc;
 exports.updateUserDocFollows = updateUserDocFollows;
 const utils_1 = require("../bin/utils");
 const auth_1 = require("../firebase/auth");
-const vanjs_core_1 = require("vanjs-core");
+const vanjs_core_1 = __importDefault(require("vanjs-core"));
 const element_1 = require("../firebase/element");
 const constants_1 = require("../constants");
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
