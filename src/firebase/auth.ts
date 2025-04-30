@@ -17,7 +17,7 @@ import {
 } from "firebase/auth";
 import store from "store2";
 import { FullUser } from "../protos/user";
-import { fbElement, LupydFirebaseElement } from "./element";
+import { fbElement } from "./element";
 // import { clearEverything } from "../databases";
 import { API_CDN_URL, CREATE_USER_FUNC_URL } from "../constants";
 

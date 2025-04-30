@@ -48,6 +48,11 @@ class LupydFirebaseElement {
                 console.log("Using firebase database emulator");
             });
         }
+        const isLupydJsTest = store2_1.default.get("isLupydJsTest");
+        if (!isLupydJsTest) {
+            store2_1.default.set("isLupydJsTest", true);
+        }
+        console.log({ isLupydJsTest });
     }
     setOnAuthStateChangeCallback(onAuthStateChange) {
         this.onAuthStateChange = onAuthStateChange;
@@ -89,6 +94,7 @@ const fbElement = () => {
     if (!_fbElement) {
         if (process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG) {
             const config = JSON.parse(atob(process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG));
+            console.log(`Using FB config `, config);
             _fbElement = new LupydFirebaseElement(config);
         }
     }

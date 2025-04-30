@@ -75,6 +75,12 @@ export class LupydFirebaseElement {
         },
       );
     }
+
+    const isLupydJsTest = store.get("isLupydJsTest");
+    if (!isLupydJsTest) {
+      store.set("isLupydJsTest", true);
+    }
+    console.log({ isLupydJsTest });
   }
 
   setOnAuthStateChangeCallback(
@@ -126,6 +132,7 @@ export const fbElement = () => {
       const config = JSON.parse(
         atob(process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG),
       );
+      console.log(`Using FB config `, config);
       _fbElement = new LupydFirebaseElement(config);
     }
   }
