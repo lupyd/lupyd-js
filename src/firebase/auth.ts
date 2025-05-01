@@ -15,7 +15,10 @@ import {
   sendEmailVerification,
   verifyBeforeUpdateEmail,
 } from "firebase/auth";
-import store from "store2";
+// import store from "store2";
+
+const store = require("store2");
+
 import { FullUser } from "../protos/user";
 import { fbElement } from "./element";
 // import { clearEverything } from "../databases";
@@ -65,7 +68,7 @@ export namespace AuthHandler {
       console.log("Signed in with link", user);
       return user;
     } else {
-      throw new Error("Invalid Email Link");
+      throw new Error(`Invalid Email Link ${link}`);
     }
   }
   export async function sendSignInLink(

@@ -42,7 +42,7 @@ const app_1 = require("firebase/app");
 const auth_1 = require("firebase/auth");
 const auth_2 = require("./auth");
 const user_1 = require("../doc/user");
-const store2_1 = __importDefault(require("store2"));
+const store = require("store2");
 require("../constants");
 const vanjs_core_1 = __importDefault(require("vanjs-core"));
 const constants_1 = require("../constants");
@@ -84,9 +84,9 @@ class LupydFirebaseElement {
                 console.log("Using firebase database emulator");
             });
         }
-        const isLupydJsTest = store2_1.default.get("isLupydJsTest");
+        const isLupydJsTest = store.get("isLupydJsTest");
         if (!isLupydJsTest) {
-            store2_1.default.set("isLupydJsTest", true);
+            store.set("isLupydJsTest", true);
         }
         console.log({ isLupydJsTest });
     }
@@ -99,13 +99,13 @@ class LupydFirebaseElement {
             this.currentUser.val = user;
             if (user) {
                 if (user.email) {
-                    store2_1.default.set("email", user.email);
+                    store.set("email", user.email);
                 }
                 auth_2.AuthHandler.getUsername(user)
                     .then((username) => {
                     if (username) {
                         (0, user_1.getUserData)().then(console.log).catch(console.error);
-                        store2_1.default.set("username", username);
+                        store.set("username", username);
                         this.currentUsername.val = username;
                         this.onAuthStateChange(username, user);
                     }

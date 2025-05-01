@@ -1,11 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthHandler = void 0;
 const auth_1 = require("firebase/auth");
-const store2_1 = __importDefault(require("store2"));
+// import store from "store2";
+const store = require("store2");
 const user_1 = require("../protos/user");
 const element_1 = require("./element");
 // import { clearEverything } from "../databases";
@@ -55,7 +53,7 @@ var AuthHandler;
             return user;
         }
         else {
-            throw new Error("Invalid Email Link");
+            throw new Error(`Invalid Email Link ${link}`);
         }
     }
     AuthHandler.signIn = signIn;
@@ -71,7 +69,7 @@ var AuthHandler;
             console.debug(`ActionCodeSettings `, settings);
             await (0, auth_1.sendSignInLinkToEmail)(getAuth(), email, settings);
             console.log("Sent Email to ", email);
-            store2_1.default.set("email", email);
+            store.set("email", email);
         }
     }
     AuthHandler.sendSignInLink = sendSignInLink;

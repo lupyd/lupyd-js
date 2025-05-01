@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import { AuthHandler } from "./auth";
 import { getUserData } from "../doc/user";
-import store from "store2";
+const store = require("store2");
 import "../constants";
 import van, { State } from "vanjs-core";
 import {
