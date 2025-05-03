@@ -60,7 +60,6 @@ export class LupydFirebaseElement {
     this.auth = initializeAuth(this.app, {
       persistence: browserLocalPersistence,
     });
-    this.initializeAuth();
     if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE == "true") {
       connectAuthEmulator(this.auth, "http://127.0.0.1:9099", {
         disableWarnings: true,
@@ -75,12 +74,6 @@ export class LupydFirebaseElement {
         },
       );
     }
-
-    const isLupydJsTest = store.get("isLupydJsTest");
-    if (!isLupydJsTest) {
-      store.set("isLupydJsTest", true);
-    }
-    console.log({ isLupydJsTest });
   }
 
   setOnAuthStateChangeCallback(
@@ -104,6 +97,8 @@ export class LupydFirebaseElement {
               store.set("username", username);
               this.currentUsername.val = username;
               this.onAuthStateChange(username, user);
+            } else {
+              this.onAuthStateChange(null, user);
             }
           })
           .catch((err) => {
@@ -115,13 +110,7 @@ export class LupydFirebaseElement {
       }
     });
   }
-
-  // get authMod() {
-  //   return import("firebase/auth")
-  // }
 }
-
-// customElements.define("lupyd-firebase", LupydFirebaseElement);
 
 let _fbElement: LupydFirebaseElement | undefined = undefined;
 
