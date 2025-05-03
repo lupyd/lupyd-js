@@ -60,6 +60,12 @@ export class LupydFirebaseElement {
     this.auth = initializeAuth(this.app, {
       persistence: browserLocalPersistence,
     });
+
+    console.log(`Initiliazed Firebase Auth`);
+
+    this.initializeAuth();
+
+    console.log(`Initialized Lupyd Auth`);
     if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE == "true") {
       connectAuthEmulator(this.auth, "http://127.0.0.1:9099", {
         disableWarnings: true,
