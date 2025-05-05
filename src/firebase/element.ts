@@ -129,6 +129,7 @@ export const fbElement = () => {
       );
       console.log(`Using FB config `, config);
       _fbElement = new LupydFirebaseElement(config);
+      window["_fbElement"] = _fbElement;
     }
   }
 
