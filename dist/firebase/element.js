@@ -73,6 +73,9 @@ class LupydFirebaseElement {
         this.auth = (0, auth_1.initializeAuth)(this.app, {
             persistence: auth_1.browserLocalPersistence,
         });
+        console.log(`Initiliazed Firebase Auth`);
+        this.initializeAuth();
+        console.log(`Initialized Lupyd Auth`);
         if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE == "true") {
             (0, auth_1.connectAuthEmulator)(this.auth, "http://127.0.0.1:9099", {
                 disableWarnings: true,
@@ -128,6 +131,7 @@ const fbElement = () => {
             const config = JSON.parse(atob(process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG));
             console.log(`Using FB config `, config);
             _fbElement = new LupydFirebaseElement(config);
+            window["_fbElement"] = _fbElement;
         }
     }
     return _fbElement;
