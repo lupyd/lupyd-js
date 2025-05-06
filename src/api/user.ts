@@ -5,7 +5,7 @@ import { API_CDN_URL, API_URL } from "./../constants";
 
 export const getUsers = async (username: string) => {
   const users: User[] = [];
-  if (!isValidUsername(username)) {
+  if (username.length <= 1) {
     console.error(new Error("Invalid Username"));
     return users;
   }

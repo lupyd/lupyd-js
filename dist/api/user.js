@@ -7,7 +7,7 @@ const user_1 = require("../protos/user");
 const constants_1 = require("./../constants");
 const getUsers = async (username) => {
     const users = [];
-    if (!(0, utils_1.isValidUsername)(username)) {
+    if (username.length <= 1) {
         console.error(new Error("Invalid Username"));
         return users;
     }
