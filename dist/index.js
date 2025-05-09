@@ -47,3 +47,4 @@ exports.PostProtos = __importStar(require("./protos/post"));
 exports.UserProtos = __importStar(require("./protos/user"));
 exports.ChatProtos = __importStar(require("./protos/chats"));
 exports.MdProtos = __importStar(require("./protos/lupyd-md"));
+__exportStar(require("./chats/default"), exports);

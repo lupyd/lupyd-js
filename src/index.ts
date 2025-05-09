@@ -8,3 +8,4 @@ export * as PostProtos from "./protos/post";
 export * as UserProtos from "./protos/user";
 export * as ChatProtos from "./protos/chats";
 export * as MdProtos from "./protos/lupyd-md";
+export * from "./chats/default";
