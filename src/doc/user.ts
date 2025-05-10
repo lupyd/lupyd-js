@@ -1,7 +1,6 @@
 import { isValidUsername } from "../bin/utils";
 import { AuthHandler } from "../firebase/auth";
-import van from "vanjs-core";
-import { fbElement, LupydFirebaseElement } from "../firebase/element";
+import { fbElement } from "../firebase/element";
 import { FIRESTORE_BASE_URL } from "../constants";
 
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
@@ -11,11 +10,54 @@ export interface UserData {
   dissappearingMessages: number;
 }
 
-let localUserFollows = van.state([] as Array<string>);
-let localDissappearingMessages = van.state(DEFAULT_DISAPPEARING_MESSAGES); // minutes
+// let localUserFollows = van.state([] as Array<string>);
+// let localDissappearingMessages = van.state(DEFAULT_DISAPPEARING_MESSAGES); // minutes
 
-export const getFollowedUsersState = () => localUserFollows;
-export const getDissaperaingMessagesState = () => localDissappearingMessages;
+export class UsersFollowState {
+  localUserFollows: Array<string> = [];
+
+  onChange = (_: UsersFollowState) => {};
+
+  constructor(callback: (state: UsersFollowState) => void = (_) => {}) {
+    this.onChange = callback;
+  }
+
+  setOnChangeCallback(callback: (state: UsersFollowState) => void) {
+    this.onChange = callback;
+  }
+
+  async followUser(username: string) {
+    if (this.doesFollowUser(username)) return;
+    const data = await updateUserDocFollows([username], false);
+    this.localUserFollows = data.follows;
+    this.onChange(this);
+  }
+
+  async unfollowUser(username: string) {
+    if (!this.doesFollowUser(username)) return;
+    const data = await updateUserDocFollows([username], true);
+    this.localUserFollows = data.follows;
+    this.onChange(this);
+  }
+
+  doesFollowUser(username: string) {
+    return this.localUserFollows.includes(username);
+  }
+}
+
+let _state: UsersFollowState | undefined = undefined;
+
+export const getFollowedUsersState = () => {
+  if (typeof window === "undefined") return undefined;
+
+  if (!_state) _state = new UsersFollowState();
+
+  window["_userFollowedState"] = _state;
+
+  return _state;
+};
+
+// export const getDissaperaingMessagesState = () => localDissappearingMessages;
 
 export const getUserData = async () => {
   const username = await AuthHandler.getUsername();
@@ -24,26 +66,26 @@ export const getUserData = async () => {
   }
 
   const userData = await fetchUserDoc();
-  if (userData) {
-    localUserFollows.val = [...userData.follows];
-  }
+  // if (userData) {
+  //   localUserFollows.val = [...userData.follows];
+  // }
 
   return userData;
 };
 
-export const followUsers = async (users: Array<string>) => {
-  const data = await updateUserDocFollows(users, false);
-  if (data) {
-    localUserFollows.val = [...data.follows];
-  }
-};
+// export const followUsers = async (users: Array<string>) => {
+//   const data = await updateUserDocFollows(users, false);
+//   if (data) {
+//     localUserFollows.val = [...data.follows];
+//   }
+// };
 
-export const unfollowUsers = async (users: Array<string>) => {
-  const data = await updateUserDocFollows(users, true);
-  if (data) {
-    localUserFollows.val = [...data.follows];
-  }
-};
+// export const unfollowUsers = async (users: Array<string>) => {
+//   const data = await updateUserDocFollows(users, true);
+//   if (data) {
+//     localUserFollows.val = [...data.follows];
+//   }
+// };
 
 export async function fetchUserDoc() {
   const username = await AuthHandler.getUsername();

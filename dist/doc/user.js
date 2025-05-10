@@ -1,49 +1,78 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unfollowUsers = exports.followUsers = exports.getUserData = exports.getDissaperaingMessagesState = exports.getFollowedUsersState = void 0;
+exports.getUserData = exports.getFollowedUsersState = exports.UsersFollowState = void 0;
 exports.fetchUserDoc = fetchUserDoc;
 exports.updateUserDocFollows = updateUserDocFollows;
 const utils_1 = require("../bin/utils");
 const auth_1 = require("../firebase/auth");
-const vanjs_core_1 = __importDefault(require("vanjs-core"));
 const element_1 = require("../firebase/element");
 const constants_1 = require("../constants");
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
-let localUserFollows = vanjs_core_1.default.state([]);
-let localDissappearingMessages = vanjs_core_1.default.state(DEFAULT_DISAPPEARING_MESSAGES); // minutes
-const getFollowedUsersState = () => localUserFollows;
+// let localUserFollows = van.state([] as Array<string>);
+// let localDissappearingMessages = van.state(DEFAULT_DISAPPEARING_MESSAGES); // minutes
+class UsersFollowState {
+    localUserFollows = [];
+    onChange = (_) => { };
+    constructor(callback = (_) => { }) {
+        this.onChange = callback;
+    }
+    setOnChangeCallback(callback) {
+        this.onChange = callback;
+    }
+    async followUser(username) {
+        if (this.doesFollowUser(username))
+            return;
+        const data = await updateUserDocFollows([username], false);
+        this.localUserFollows = data.follows;
+        this.onChange(this);
+    }
+    async unfollowUser(username) {
+        if (!this.doesFollowUser(username))
+            return;
+        const data = await updateUserDocFollows([username], true);
+        this.localUserFollows = data.follows;
+        this.onChange(this);
+    }
+    doesFollowUser(username) {
+        return this.localUserFollows.includes(username);
+    }
+}
+exports.UsersFollowState = UsersFollowState;
+let _state = undefined;
+const getFollowedUsersState = () => {
+    if (typeof window === "undefined")
+        return undefined;
+    if (!_state)
+        _state = new UsersFollowState();
+    window["_userFollowedState"] = _state;
+    return _state;
+};
 exports.getFollowedUsersState = getFollowedUsersState;
-const getDissaperaingMessagesState = () => localDissappearingMessages;
-exports.getDissaperaingMessagesState = getDissaperaingMessagesState;
+// export const getDissaperaingMessagesState = () => localDissappearingMessages;
 const getUserData = async () => {
     const username = await auth_1.AuthHandler.getUsername();
     if (!username) {
         throw new Error("User is not authenticated");
     }
     const userData = await fetchUserDoc();
-    if (userData) {
-        localUserFollows.val = [...userData.follows];
-    }
+    // if (userData) {
+    //   localUserFollows.val = [...userData.follows];
+    // }
     return userData;
 };
 exports.getUserData = getUserData;
-const followUsers = async (users) => {
-    const data = await updateUserDocFollows(users, false);
-    if (data) {
-        localUserFollows.val = [...data.follows];
-    }
-};
-exports.followUsers = followUsers;
-const unfollowUsers = async (users) => {
-    const data = await updateUserDocFollows(users, true);
-    if (data) {
-        localUserFollows.val = [...data.follows];
-    }
-};
-exports.unfollowUsers = unfollowUsers;
+// export const followUsers = async (users: Array<string>) => {
+//   const data = await updateUserDocFollows(users, false);
+//   if (data) {
+//     localUserFollows.val = [...data.follows];
+//   }
+// };
+// export const unfollowUsers = async (users: Array<string>) => {
+//   const data = await updateUserDocFollows(users, true);
+//   if (data) {
+//     localUserFollows.val = [...data.follows];
+//   }
+// };
 async function fetchUserDoc() {
     const username = await auth_1.AuthHandler.getUsername();
     const token = await auth_1.AuthHandler.getToken();
