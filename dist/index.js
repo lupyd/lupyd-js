@@ -41,6 +41,7 @@ __exportStar(require("./bin/utils"), exports);
 __exportStar(require("./constants"), exports);
 __exportStar(require("./api/post"), exports);
 __exportStar(require("./api/user"), exports);
+__exportStar(require("./api/chat"), exports);
 __exportStar(require("./firebase/element"), exports);
 __exportStar(require("./firebase/auth"), exports);
 exports.PostProtos = __importStar(require("./protos/post"));
