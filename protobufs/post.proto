@@ -68,13 +68,13 @@ message File {
 }
 
 
-// message GetPostsData {
-//   uint32 allowed_post_types = 1;
-//   repeated string by = 2;
-//   bool all_posts = 3;
-//   bytes cursor = 4;
-//   string tags = 5;
-// }
+message GetPostsData {
+  uint32 allowed_post_types = 1;
+  repeated string by = 2;
+  bool all_posts = 3;
+  bytes cursor = 4;
+  string tags = 5;
+}
 
 message FullPosts {
   repeated FullPost posts = 1;
@@ -154,3 +154,12 @@ message PostReport {
   string description = 3;
 }
 
+
+message PostHashtag {
+  string name = 1;
+  int32 total = 2;
+}
+
+message PostHashtags {
+  repeated PostHashtag hashtags = 1;
+}
