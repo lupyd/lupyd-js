@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.putVote = exports.getPosts = exports.FetchType = exports.getPost = void 0;
+exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.putVote = exports.getPosts = exports.FetchType = exports.getPost = void 0;
 const constants_1 = require("../constants");
 const post_1 = require("../protos/post");
 const auth_1 = require("../firebase/auth");
 const utils_1 = require("../bin/utils");
+const __1 = require("..");
 const getPost = async (id) => {
     const url = `${constants_1.API_URL}/post/${id}`;
     const response = await fetch(url);
@@ -23,6 +24,7 @@ var FetchType;
     FetchType[FetchType["Replies"] = 2] = "Replies";
     FetchType[FetchType["Edits"] = 3] = "Edits";
     FetchType[FetchType["Search"] = 4] = "Search";
+    FetchType[FetchType["Hashtag"] = 5] = "Hashtag";
 })(FetchType || (exports.FetchType = FetchType = {}));
 const parseGetPostsData = (details) => {
     const searchParams = new URLSearchParams();
@@ -32,6 +34,9 @@ const parseGetPostsData = (details) => {
     }
     if (details.end) {
         searchParams.append("end", details.end);
+    }
+    if (details.offset) {
+        searchParams.append("offset", details.offset.toString());
     }
     switch (details.fetchType) {
         case FetchType.Latest: {
@@ -84,6 +89,16 @@ const parseGetPostsData = (details) => {
             else {
                 throw new Error("Invalid FetchType.Search");
             }
+            break;
+        }
+        case FetchType.Hashtag: {
+            if (typeof details.fetchTypeFields == "string") {
+                searchParams.append("hashtag", details.fetchTypeFields);
+            }
+            else {
+                throw new Error("Invalid FetchType.Hashtag");
+            }
+            break;
         }
     }
     return searchParams;
@@ -157,7 +172,7 @@ class VotesRequestBatcher {
     intervalId;
     constructor() {
         this.intervalId = setInterval(() => {
-            this.flustVotes();
+            this.flushVotes();
         }, 10_000);
     }
     static instance = new VotesRequestBatcher();
@@ -168,7 +183,7 @@ class VotesRequestBatcher {
             }
         }
     }
-    flustVotes() {
+    flushVotes() {
         const votes = this.queuedVotes;
         if (votes.length === 0)
             return;
@@ -356,3 +371,12 @@ const deletePost = async (id) => {
     console.log(`DELETE ${url} status: ${response.status} ${await response.text()}`);
 };
 exports.deletePost = deletePost;
+const getTrendingHashtags = async () => {
+    const url = `${constants_1.API_URL}/hashtags`;
+    const response = await fetch(url);
+    if (response.status != 200) {
+        throw new Error(`unexpected status code: ${response.status}, body: ${await response.text()}`);
+    }
+    return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
+};
+exports.getTrendingHashtags = getTrendingHashtags;

@@ -18,6 +18,7 @@ import {
   ulidStringify,
   Utils,
 } from "../bin/utils";
+import { PostProtos } from "..";
 
 export const getPost = async (id: string) => {
   const url = `${API_URL}/post/${id}`;
@@ -36,6 +37,7 @@ export enum FetchType {
   Replies,
   Edits,
   Search,
+  Hashtag,
 }
 
 export interface GetPostsData {
@@ -44,6 +46,7 @@ export interface GetPostsData {
   fetchTypeFields?: any;
   start?: string;
   end?: string;
+  offset?: number;
 }
 
 const parseGetPostsData = (details: GetPostsData) => {
@@ -56,6 +59,11 @@ const parseGetPostsData = (details: GetPostsData) => {
   if (details.end) {
     searchParams.append("end", details.end);
   }
+
+  if (details.offset) {
+    searchParams.append("offset", details.offset.toString());
+  }
+
   switch (details.fetchType) {
     case FetchType.Latest: {
       break;
@@ -111,6 +119,17 @@ const parseGetPostsData = (details: GetPostsData) => {
       } else {
         throw new Error("Invalid FetchType.Search");
       }
+      break;
+    }
+
+    case FetchType.Hashtag: {
+      if (typeof details.fetchTypeFields == "string") {
+        searchParams.append("hashtag", details.fetchTypeFields);
+      } else {
+        throw new Error("Invalid FetchType.Hashtag");
+      }
+
+      break;
     }
   }
 
@@ -196,7 +215,7 @@ class VotesRequestBatcher {
 
   constructor() {
     this.intervalId = setInterval(() => {
-      this.flustVotes();
+      this.flushVotes();
     }, 10_000) as any as number;
   }
 
@@ -210,7 +229,7 @@ class VotesRequestBatcher {
     }
   }
 
-  flustVotes() {
+  flushVotes() {
     const votes = this.queuedVotes;
     if (votes.length === 0) return;
     this.queuedVotes = [];
@@ -433,5 +452,18 @@ export const deletePost = async (id: Uint8Array) => {
 
   console.log(
     `DELETE ${url} status: ${response.status} ${await response.text()}`,
+  );
+};
+
+export const getTrendingHashtags = async () => {
+  const url = `${API_URL}/hashtags`;
+  const response = await fetch(url);
+  if (response.status != 200) {
+    throw new Error(
+      `unexpected status code: ${response.status}, body: ${await response.text()}`,
+    );
+  }
+  return PostProtos.PostHashtags.decode(
+    new Uint8Array(await response.arrayBuffer()),
   );
 };

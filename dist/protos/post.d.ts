@@ -64,6 +64,13 @@ export interface File {
     mimeType: string;
     length: bigint;
 }
+export interface GetPostsData {
+    allowedPostTypes: number;
+    by: string[];
+    allPosts: boolean;
+    cursor: Uint8Array;
+    tags: string;
+}
 export interface FullPosts {
     posts: FullPost[];
 }
@@ -113,6 +120,13 @@ export interface PostReport {
     sevirity: number;
     description: string;
 }
+export interface PostHashtag {
+    name: string;
+    total: number;
+}
+export interface PostHashtags {
+    hashtags: PostHashtag[];
+}
 export declare const BoolValue: MessageFns<BoolValue>;
 export declare const PostBody: MessageFns<PostBody>;
 export declare const PostBodies: MessageFns<PostBodies>;
@@ -120,6 +134,7 @@ export declare const FullPost: MessageFns<FullPost>;
 export declare const CreatePostDetails: MessageFns<CreatePostDetails>;
 export declare const CreatePostWithFiles: MessageFns<CreatePostWithFiles>;
 export declare const File: MessageFns<File>;
+export declare const GetPostsData: MessageFns<GetPostsData>;
 export declare const FullPosts: MessageFns<FullPosts>;
 export declare const Votes: MessageFns<Votes>;
 export declare const Vote: MessageFns<Vote>;
@@ -133,6 +148,8 @@ export declare const CreatePollFields: MessageFns<CreatePollFields>;
 export declare const PollUserVote: MessageFns<PollUserVote>;
 export declare const PollUserVotes: MessageFns<PollUserVotes>;
 export declare const PostReport: MessageFns<PostReport>;
+export declare const PostHashtag: MessageFns<PostHashtag>;
+export declare const PostHashtags: MessageFns<PostHashtags>;
 type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 export type DeepPartial<T> = T extends Builtin ? T : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
     [K in keyof T]?: DeepPartial<T[K]>;
