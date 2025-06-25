@@ -1,7 +1,7 @@
 import { isValidUsername } from "../bin/utils";
 import { AuthHandler } from "../firebase/auth";
-import { fbElement } from "../firebase/element";
 import { FIRESTORE_BASE_URL } from "../constants";
+import { fbElement } from "../firebase/element";
 
 const DEFAULT_DISAPPEARING_MESSAGES = 60 * 24 * 7; // minutes
 

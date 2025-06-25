@@ -21,8 +21,9 @@ export declare class LupydFirebaseElement {
         LUPYD_VERSION: string;
     };
     onAuthStateChange: (username: string, user: User) => void;
-    constructor(config: FirebaseOptions, onAuthStateChange?: (username: string, user: User) => void);
+    constructor(config: FirebaseOptions, emulatorAddress?: string, onAuthStateChange?: (username: string, user: User) => void);
     setOnAuthStateChangeCallback(onAuthStateChange: (username: string, user: User) => void): void;
     initializeAuth(): void;
 }
+export declare const initFbElement: (config: FirebaseOptions, emulatorAddress?: string) => LupydFirebaseElement;
 export declare const fbElement: () => LupydFirebaseElement;

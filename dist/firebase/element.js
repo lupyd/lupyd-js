@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fbElement = exports.LupydFirebaseElement = exports.FUNCTIONS_REGION = void 0;
+exports.fbElement = exports.initFbElement = exports.LupydFirebaseElement = exports.FUNCTIONS_REGION = void 0;
 const app_1 = require("firebase/app");
 const auth_1 = require("firebase/auth");
 const auth_2 = require("./auth");
@@ -67,7 +67,7 @@ class LupydFirebaseElement {
         LUPYD_VERSION: constants_1.LUPYD_VERSION,
     };
     onAuthStateChange;
-    constructor(config, onAuthStateChange = (_, __) => { }) {
+    constructor(config, emulatorAddress, onAuthStateChange = (_, __) => { }) {
         this.onAuthStateChange = onAuthStateChange;
         this.app = (0, app_1.initializeApp)(config);
         this.auth = (0, auth_1.initializeAuth)(this.app, {
@@ -76,13 +76,13 @@ class LupydFirebaseElement {
         console.log(`Initiliazed Firebase Auth`);
         this.initializeAuth();
         console.log(`Initialized Lupyd Auth`);
-        if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE == "true") {
-            (0, auth_1.connectAuthEmulator)(this.auth, "http://127.0.0.1:9099", {
+        if (emulatorAddress) {
+            (0, auth_1.connectAuthEmulator)(this.auth, `http://${emulatorAddress}:9099`, {
                 disableWarnings: true,
             });
             console.log("Using Firebase Auth emulator");
             Promise.resolve().then(() => __importStar(require("firebase/database"))).then(({ connectDatabaseEmulator, getDatabase }) => {
-                connectDatabaseEmulator(getDatabase(this.app), "127.0.0.1", 9000);
+                connectDatabaseEmulator(getDatabase(this.app), emulatorAddress, 9000);
                 console.log("Using firebase database emulator");
             });
         }
@@ -123,17 +123,16 @@ class LupydFirebaseElement {
 }
 exports.LupydFirebaseElement = LupydFirebaseElement;
 let _fbElement = undefined;
-const fbElement = () => {
+const initFbElement = (config, emulatorAddress) => {
     if (typeof window === "undefined")
         return undefined;
     if (!_fbElement) {
-        if (process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG) {
-            const config = JSON.parse(atob(process.env.NEXT_PUBLIC_JS_ENV_FIREBASE_CONFIG));
-            console.log(`Using FB config `, config);
-            _fbElement = new LupydFirebaseElement(config);
-            window["_fbElement"] = _fbElement;
-        }
+        console.log(`Using FB config `, config);
+        _fbElement = new LupydFirebaseElement(config, emulatorAddress);
+        window["_fbElement"] = _fbElement;
     }
     return _fbElement;
 };
+exports.initFbElement = initFbElement;
+const fbElement = () => _fbElement;
 exports.fbElement = fbElement;

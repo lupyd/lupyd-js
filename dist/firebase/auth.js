@@ -40,7 +40,7 @@ var AuthHandler;
         return (0, auth_1.sendEmailVerification)(user, {
             handleCodeInApp: true,
             // dynamicLinkDomain: `${window.location.origin}/m/signin`,
-            url: `${window.location.origin}/signin`,
+            url: `${window.location.origin}/action`,
         });
     }
     AuthHandler.sendVerificationMail = sendVerificationMail;
@@ -176,7 +176,7 @@ var AuthHandler;
         const settings = {
             handleCodeInApp: true,
             // dynamicLinkDomain: `${window.location.origin}/m/signin`,
-            url: `${window.location.origin}/signin?email=${email}`,
+            url: `${window.location.origin}/action?email=${email}`,
         };
         await (0, auth_1.sendPasswordResetEmail)(getAuth(), email, settings);
     }

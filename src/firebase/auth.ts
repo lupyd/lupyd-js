@@ -56,7 +56,7 @@ export namespace AuthHandler {
     return sendEmailVerification(user, {
       handleCodeInApp: true,
       // dynamicLinkDomain: `${window.location.origin}/m/signin`,
-      url: `${window.location.origin}/signin`,
+      url: `${window.location.origin}/action`,
     });
   }
 
@@ -194,7 +194,7 @@ export namespace AuthHandler {
     const settings: ActionCodeSettings = {
       handleCodeInApp: true,
       // dynamicLinkDomain: `${window.location.origin}/m/signin`,
-      url: `${window.location.origin}/signin?email=${email}`,
+      url: `${window.location.origin}/action?email=${email}`,
     };
     await sendPasswordResetEmail(getAuth(), email, settings);
   }
