@@ -104,6 +104,8 @@ var AuthHandler;
                         await currentUser.reload();
                         console.log(`Succesful sign up `, result);
                         AuthHandler.currentUser().val = auth.currentUser;
+                        const finalUsername = await getUsername(auth.currentUser);
+                        (0, element_1.fbElement)().onAuthStateChange(finalUsername, auth.currentUser);
                         if (pfpUrl) {
                             try {
                                 const pfpResponse = await fetch(pfpUrl);

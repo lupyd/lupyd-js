@@ -124,6 +124,9 @@ export namespace AuthHandler {
             console.log(`Succesful sign up `, result);
             AuthHandler.currentUser().val = auth.currentUser;
 
+            const finalUsername = await getUsername(auth.currentUser);
+            fbElement().onAuthStateChange(finalUsername, auth.currentUser);
+
             if (pfpUrl) {
               try {
                 const pfpResponse = await fetch(pfpUrl);
