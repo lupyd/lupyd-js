@@ -21,6 +21,7 @@ export interface FullUser {
   uid: string;
   credits: number;
   chats: boolean;
+  settings: number;
 }
 
 export interface FullUserWithProfile {
@@ -40,6 +41,7 @@ export interface UpdateUserInfo {
   bio: PostBody | undefined;
   pfp: BoolValue | undefined;
   chats: BoolValue | undefined;
+  settings: number;
 }
 
 export interface User {
@@ -47,6 +49,16 @@ export interface User {
   bio: Uint8Array;
   pfp: boolean;
   chats: boolean;
+}
+
+export interface Relation {
+  uname: string;
+  /** true follows, false blocked */
+  relation: boolean;
+}
+
+export interface Relations {
+  relations: Relation[];
 }
 
 function createBaseBoolValue(): BoolValue {
@@ -108,7 +120,7 @@ export const BoolValue: MessageFns<BoolValue> = {
 };
 
 function createBaseFullUser(): FullUser {
-  return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false };
+  return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false, settings: 0 };
 }
 
 export const FullUser: MessageFns<FullUser> = {
@@ -130,6 +142,9 @@ export const FullUser: MessageFns<FullUser> = {
     }
     if (message.chats !== false) {
       writer.uint32(48).bool(message.chats);
+    }
+    if (message.settings !== 0) {
+      writer.uint32(56).int32(message.settings);
     }
     return writer;
   },
@@ -189,6 +204,14 @@ export const FullUser: MessageFns<FullUser> = {
           message.chats = reader.bool();
           continue;
         }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.settings = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -206,6 +229,7 @@ export const FullUser: MessageFns<FullUser> = {
       uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
       credits: isSet(object.credits) ? globalThis.Number(object.credits) : 0,
       chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
+      settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
     };
   },
 
@@ -229,6 +253,9 @@ export const FullUser: MessageFns<FullUser> = {
     if (message.chats !== false) {
       obj.chats = message.chats;
     }
+    if (message.settings !== 0) {
+      obj.settings = Math.round(message.settings);
+    }
     return obj;
   },
 
@@ -243,6 +270,7 @@ export const FullUser: MessageFns<FullUser> = {
     message.uid = object.uid ?? "";
     message.credits = object.credits ?? 0;
     message.chats = object.chats ?? false;
+    message.settings = object.settings ?? 0;
     return message;
   },
 };
@@ -440,7 +468,7 @@ export const Users: MessageFns<Users> = {
 };
 
 function createBaseUpdateUserInfo(): UpdateUserInfo {
-  return { bio: undefined, pfp: undefined, chats: undefined };
+  return { bio: undefined, pfp: undefined, chats: undefined, settings: 0 };
 }
 
 export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
@@ -453,6 +481,9 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
     }
     if (message.chats !== undefined) {
       BoolValue.encode(message.chats, writer.uint32(26).fork()).join();
+    }
+    if (message.settings !== 0) {
+      writer.uint32(32).int32(message.settings);
     }
     return writer;
   },
@@ -488,6 +519,14 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
           message.chats = BoolValue.decode(reader, reader.uint32());
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.settings = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -502,6 +541,7 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
       bio: isSet(object.bio) ? PostBody.fromJSON(object.bio) : undefined,
       pfp: isSet(object.pfp) ? BoolValue.fromJSON(object.pfp) : undefined,
       chats: isSet(object.chats) ? BoolValue.fromJSON(object.chats) : undefined,
+      settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
     };
   },
 
@@ -516,6 +556,9 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
     if (message.chats !== undefined) {
       obj.chats = BoolValue.toJSON(message.chats);
     }
+    if (message.settings !== 0) {
+      obj.settings = Math.round(message.settings);
+    }
     return obj;
   },
 
@@ -529,6 +572,7 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
     message.chats = (object.chats !== undefined && object.chats !== null)
       ? BoolValue.fromPartial(object.chats)
       : undefined;
+    message.settings = object.settings ?? 0;
     return message;
   },
 };
@@ -637,6 +681,144 @@ export const User: MessageFns<User> = {
     message.bio = object.bio ?? new Uint8Array(0);
     message.pfp = object.pfp ?? false;
     message.chats = object.chats ?? false;
+    return message;
+  },
+};
+
+function createBaseRelation(): Relation {
+  return { uname: "", relation: false };
+}
+
+export const Relation: MessageFns<Relation> = {
+  encode(message: Relation, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.uname !== "") {
+      writer.uint32(10).string(message.uname);
+    }
+    if (message.relation !== false) {
+      writer.uint32(16).bool(message.relation);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Relation {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRelation();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.uname = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.relation = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Relation {
+    return {
+      uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
+      relation: isSet(object.relation) ? globalThis.Boolean(object.relation) : false,
+    };
+  },
+
+  toJSON(message: Relation): unknown {
+    const obj: any = {};
+    if (message.uname !== "") {
+      obj.uname = message.uname;
+    }
+    if (message.relation !== false) {
+      obj.relation = message.relation;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Relation>, I>>(base?: I): Relation {
+    return Relation.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Relation>, I>>(object: I): Relation {
+    const message = createBaseRelation();
+    message.uname = object.uname ?? "";
+    message.relation = object.relation ?? false;
+    return message;
+  },
+};
+
+function createBaseRelations(): Relations {
+  return { relations: [] };
+}
+
+export const Relations: MessageFns<Relations> = {
+  encode(message: Relations, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.relations) {
+      Relation.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Relations {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRelations();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.relations.push(Relation.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Relations {
+    return {
+      relations: globalThis.Array.isArray(object?.relations)
+        ? object.relations.map((e: any) => Relation.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: Relations): unknown {
+    const obj: any = {};
+    if (message.relations?.length) {
+      obj.relations = message.relations.map((e) => Relation.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Relations>, I>>(base?: I): Relations {
+    return Relations.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Relations>, I>>(object: I): Relations {
+    const message = createBaseRelations();
+    message.relations = object.relations?.map((e) => Relation.fromPartial(e)) || [];
     return message;
   },
 };

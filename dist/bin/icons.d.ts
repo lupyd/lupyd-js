@@ -1,1 +1,1 @@
-export declare const getIcon: (name: string) => SVGElement;
+export declare const getIcon: (name: string) => SVGElement | undefined;

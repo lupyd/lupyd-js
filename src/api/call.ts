@@ -1,15 +1,15 @@
+import { getAuthHandler } from "../auth/auth";
 import { API_CDN_URL } from "../constants";
-import { AuthHandler } from "../firebase/auth";
 
 export const getWebrtcConfig = async () => {
   const url = `${API_CDN_URL}/turn`;
   {
-    const username = await AuthHandler.getUsername();
+    const username = await getAuthHandler()?.getUsername();
     if (!username) {
       throw new Error("User not signed in");
     }
   }
-  const token = await AuthHandler.getToken();
+  const token = await getAuthHandler()?.getToken();
 
   const response = await fetch(url, {
     headers: {

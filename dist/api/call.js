@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWebrtcConfig = void 0;
+const auth_1 = require("../auth/auth");
 const constants_1 = require("../constants");
-const auth_1 = require("../firebase/auth");
 const getWebrtcConfig = async () => {
     const url = `${constants_1.API_CDN_URL}/turn`;
     {
-        const username = await auth_1.AuthHandler.getUsername();
+        const username = await (0, auth_1.getAuthHandler)()?.getUsername();
         if (!username) {
             throw new Error("User not signed in");
         }
     }
-    const token = await auth_1.AuthHandler.getToken();
+    const token = await (0, auth_1.getAuthHandler)()?.getToken();
     const response = await fetch(url, {
         headers: {
             Authorization: `Bearer ${token}`,
