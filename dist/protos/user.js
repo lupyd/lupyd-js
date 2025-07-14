@@ -5,7 +5,7 @@
 //   protoc               v6.31.1
 // source: user.proto
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = exports.UpdateUserInfo = exports.Users = exports.FullUsers = exports.FullUserWithProfile = exports.FullUser = exports.BoolValue = exports.protobufPackage = void 0;
+exports.Relations = exports.Relation = exports.User = exports.UpdateUserInfo = exports.Users = exports.FullUsers = exports.FullUserWithProfile = exports.FullUser = exports.BoolValue = exports.protobufPackage = void 0;
 /* eslint-disable */
 const wire_1 = require("@bufbuild/protobuf/wire");
 const post_1 = require("./post");
@@ -62,7 +62,7 @@ exports.BoolValue = {
     },
 };
 function createBaseFullUser() {
-    return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false };
+    return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false, settings: 0 };
 }
 exports.FullUser = {
     encode(message, writer = new wire_1.BinaryWriter()) {
@@ -83,6 +83,9 @@ exports.FullUser = {
         }
         if (message.chats !== false) {
             writer.uint32(48).bool(message.chats);
+        }
+        if (message.settings !== 0) {
+            writer.uint32(56).int32(message.settings);
         }
         return writer;
     },
@@ -135,6 +138,13 @@ exports.FullUser = {
                     message.chats = reader.bool();
                     continue;
                 }
+                case 7: {
+                    if (tag !== 56) {
+                        break;
+                    }
+                    message.settings = reader.int32();
+                    continue;
+                }
             }
             if ((tag & 7) === 4 || tag === 0) {
                 break;
@@ -151,6 +161,7 @@ exports.FullUser = {
             uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
             credits: isSet(object.credits) ? globalThis.Number(object.credits) : 0,
             chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
+            settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
         };
     },
     toJSON(message) {
@@ -173,6 +184,9 @@ exports.FullUser = {
         if (message.chats !== false) {
             obj.chats = message.chats;
         }
+        if (message.settings !== 0) {
+            obj.settings = Math.round(message.settings);
+        }
         return obj;
     },
     create(base) {
@@ -186,6 +200,7 @@ exports.FullUser = {
         message.uid = object.uid ?? "";
         message.credits = object.credits ?? 0;
         message.chats = object.chats ?? false;
+        message.settings = object.settings ?? 0;
         return message;
     },
 };
@@ -360,7 +375,7 @@ exports.Users = {
     },
 };
 function createBaseUpdateUserInfo() {
-    return { bio: undefined, pfp: undefined, chats: undefined };
+    return { bio: undefined, pfp: undefined, chats: undefined, settings: 0 };
 }
 exports.UpdateUserInfo = {
     encode(message, writer = new wire_1.BinaryWriter()) {
@@ -372,6 +387,9 @@ exports.UpdateUserInfo = {
         }
         if (message.chats !== undefined) {
             exports.BoolValue.encode(message.chats, writer.uint32(26).fork()).join();
+        }
+        if (message.settings !== 0) {
+            writer.uint32(32).int32(message.settings);
         }
         return writer;
     },
@@ -403,6 +421,13 @@ exports.UpdateUserInfo = {
                     message.chats = exports.BoolValue.decode(reader, reader.uint32());
                     continue;
                 }
+                case 4: {
+                    if (tag !== 32) {
+                        break;
+                    }
+                    message.settings = reader.int32();
+                    continue;
+                }
             }
             if ((tag & 7) === 4 || tag === 0) {
                 break;
@@ -416,6 +441,7 @@ exports.UpdateUserInfo = {
             bio: isSet(object.bio) ? post_1.PostBody.fromJSON(object.bio) : undefined,
             pfp: isSet(object.pfp) ? exports.BoolValue.fromJSON(object.pfp) : undefined,
             chats: isSet(object.chats) ? exports.BoolValue.fromJSON(object.chats) : undefined,
+            settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
         };
     },
     toJSON(message) {
@@ -429,6 +455,9 @@ exports.UpdateUserInfo = {
         if (message.chats !== undefined) {
             obj.chats = exports.BoolValue.toJSON(message.chats);
         }
+        if (message.settings !== 0) {
+            obj.settings = Math.round(message.settings);
+        }
         return obj;
     },
     create(base) {
@@ -441,6 +470,7 @@ exports.UpdateUserInfo = {
         message.chats = (object.chats !== undefined && object.chats !== null)
             ? exports.BoolValue.fromPartial(object.chats)
             : undefined;
+        message.settings = object.settings ?? 0;
         return message;
     },
 };
@@ -539,6 +569,129 @@ exports.User = {
         message.bio = object.bio ?? new Uint8Array(0);
         message.pfp = object.pfp ?? false;
         message.chats = object.chats ?? false;
+        return message;
+    },
+};
+function createBaseRelation() {
+    return { uname: "", relation: false };
+}
+exports.Relation = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        if (message.uname !== "") {
+            writer.uint32(10).string(message.uname);
+        }
+        if (message.relation !== false) {
+            writer.uint32(16).bool(message.relation);
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        let end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseRelation();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
+                    message.uname = reader.string();
+                    continue;
+                }
+                case 2: {
+                    if (tag !== 16) {
+                        break;
+                    }
+                    message.relation = reader.bool();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return {
+            uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
+            relation: isSet(object.relation) ? globalThis.Boolean(object.relation) : false,
+        };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.uname !== "") {
+            obj.uname = message.uname;
+        }
+        if (message.relation !== false) {
+            obj.relation = message.relation;
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.Relation.fromPartial(base ?? {});
+    },
+    fromPartial(object) {
+        const message = createBaseRelation();
+        message.uname = object.uname ?? "";
+        message.relation = object.relation ?? false;
+        return message;
+    },
+};
+function createBaseRelations() {
+    return { relations: [] };
+}
+exports.Relations = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        for (const v of message.relations) {
+            exports.Relation.encode(v, writer.uint32(10).fork()).join();
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        let end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseRelations();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
+                    message.relations.push(exports.Relation.decode(reader, reader.uint32()));
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return {
+            relations: globalThis.Array.isArray(object?.relations)
+                ? object.relations.map((e) => exports.Relation.fromJSON(e))
+                : [],
+        };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.relations?.length) {
+            obj.relations = message.relations.map((e) => exports.Relation.toJSON(e));
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.Relations.fromPartial(base ?? {});
+    },
+    fromPartial(object) {
+        const message = createBaseRelations();
+        message.relations = object.relations?.map((e) => exports.Relation.fromPartial(e)) || [];
         return message;
     },
 };

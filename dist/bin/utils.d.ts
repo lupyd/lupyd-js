@@ -52,7 +52,7 @@ export declare const _getTimeZoneOffsetInMs: () => number;
 export declare const ulidStringify: (ulid: Uint8Array) => string;
 export declare const ulidFromString: (s: string) => Uint8Array<ArrayBufferLike>;
 export declare const cacheBuster: (durationInSeconds: number) => number;
-export declare const tryCatchIfUndefine: <T>(f: () => T) => T;
+export declare const tryCatchIfUndefine: <T>(f: () => T) => T | undefined;
 export declare function UiIcon(i: string | IconNode): HTMLSpanElement;
 export interface ResponseInit {
     status: number;
@@ -62,6 +62,6 @@ export interface ResponseInit {
         get(_: string): string | null;
     };
 }
-export declare const fetchWithProgress: (url: string | URL, method: string, headers: Record<string, string>, body: Blob | BufferSource | FormData | URLSearchParams | string | undefined, onUploadProgress: (sent: number, total: number) => void, onDownloadProgress: (received: number, total: number) => void) => Promise<ResponseInit>;
+export declare const fetchWithProgress: (url: string | URL, method: string, headers: Record<string, string> | undefined, body: Blob | BufferSource | FormData | URLSearchParams | string | undefined, onUploadProgress: (sent: number, total: number) => void, onDownloadProgress: (received: number, total: number) => void) => Promise<ResponseInit>;
 export declare const sanitizeFilename: (input: string) => string;
 export declare const dateToRelativeString: (date: Date) => string;

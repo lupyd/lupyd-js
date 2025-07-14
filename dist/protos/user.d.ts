@@ -11,6 +11,7 @@ export interface FullUser {
     uid: string;
     credits: number;
     chats: boolean;
+    settings: number;
 }
 export interface FullUserWithProfile {
     user: FullUser | undefined;
@@ -26,12 +27,21 @@ export interface UpdateUserInfo {
     bio: PostBody | undefined;
     pfp: BoolValue | undefined;
     chats: BoolValue | undefined;
+    settings: number;
 }
 export interface User {
     uname: string;
     bio: Uint8Array;
     pfp: boolean;
     chats: boolean;
+}
+export interface Relation {
+    uname: string;
+    /** true follows, false blocked */
+    relation: boolean;
+}
+export interface Relations {
+    relations: Relation[];
 }
 export declare const BoolValue: MessageFns<BoolValue>;
 export declare const FullUser: MessageFns<FullUser>;
@@ -40,6 +50,8 @@ export declare const FullUsers: MessageFns<FullUsers>;
 export declare const Users: MessageFns<Users>;
 export declare const UpdateUserInfo: MessageFns<UpdateUserInfo>;
 export declare const User: MessageFns<User>;
+export declare const Relation: MessageFns<Relation>;
+export declare const Relations: MessageFns<Relations>;
 type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 export type DeepPartial<T> = T extends Builtin ? T : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
     [K in keyof T]?: DeepPartial<T[K]>;

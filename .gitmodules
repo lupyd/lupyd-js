@@ -1,0 +1,3 @@
+[submodule "lupyd-protos"]
+	path = lupyd-protos
+	url = https://github.com/lupyd/lupyd-protos.git

@@ -1,7 +1,6 @@
 import { API_URL, API_CDN_URL } from "../constants";
 
 import {
-  BoolValue,
   CreatePostDetails,
   CreatePostWithFiles,
   FullPost,
@@ -11,7 +10,6 @@ import {
   Vote,
   Votes,
 } from "../protos/post";
-import { AuthHandler } from "../firebase/auth";
 import {
   fetchWithProgress,
   isValidUsername,
@@ -19,6 +17,8 @@ import {
   Utils,
 } from "../bin/utils";
 import { PostProtos } from "..";
+import { Notifications } from "../protos/notification";
+import { getAuthHandler } from "../auth/auth";
 
 export const getPost = async (id: string) => {
   const url = `${API_URL}/post/${id}`;
@@ -142,7 +142,7 @@ export const getPosts = async (getPostDetails: GetPostsData) => {
     parseGetPostsData(getPostDetails).forEach((value, key) =>
       url.searchParams.append(key, value),
     );
-    const token = await AuthHandler.getToken();
+    const token = await getAuthHandler()?.getToken();
     const response = await fetch(url, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
@@ -154,51 +154,6 @@ export const getPosts = async (getPostDetails: GetPostsData) => {
       ).posts;
 
       return posts;
-
-      // const ldb = document.querySelector("lupyd-databases") as
-      //   | undefined
-      //   | LupydDatabasesElement;
-
-      // if (!ldb) {
-      //   return posts;
-      // }
-
-      // const db = ldb.localDb;
-      // if (!db) {
-      //   return posts;
-      // }
-      // if (!token) {
-      //   const username = store.get("username");
-      //   if (username) {
-      //     const transaction = db.transaction(VOTES_DB_STORE_NAME);
-      //     await Promise.all(
-      //       posts.map(async (post) => {
-      //         const row = await transaction.store.get(ulidStringify(post.id));
-      //         if (row && row.by == username) {
-      //           post.vote =
-      //             typeof row.val === "boolean"
-      //               ? BoolValue.create({ val: row.val })
-      //               : undefined;
-      //         }
-      //       }),
-      //     );
-      //   }
-      // } else {
-      //   const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
-      //   await Promise.all(
-      //     posts.map((post) =>
-      //       tx.store.put({ val: post.vote?.val }, ulidStringify(post.id)),
-      //     ),
-      //   );
-      //   await tx.done;
-      // }
-      // const tx = db.transaction(POSTS_DB_STORE_NAME, "readwrite");
-      // await Promise.all(
-      //   posts.map((post) => tx.store.put(post, ulidStringify(post.id))),
-      // );
-      // await tx.done;
-
-      // return posts;
     } else {
       console.error(`${url} [${response.status}] ${await response.text()}`);
     }
@@ -257,7 +212,7 @@ export const putVotes = async (votes: Vote[]) => {
     //   document.querySelector("lupyd-databases") as LupydDatabasesElement
     // ).localDb;
     const url = `${API_URL}/vote`;
-    const token = await AuthHandler.getToken();
+    const token = await getAuthHandler()?.getToken();
     if (!token) {
       throw new Error(`User not authenticated`);
     }
@@ -272,7 +227,7 @@ export const putVotes = async (votes: Vote[]) => {
 
     if (response.status === 200) {
       console.log(`Successfully voted`);
-      const username = await AuthHandler.getUsername();
+      const username = await getAuthHandler()?.getUsername();
       // if (db) {
       //   const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
       //   await Promise.all(
@@ -295,8 +250,8 @@ export const putVotes = async (votes: Vote[]) => {
 
 export const createPost = async (createPostDetails: CreatePostDetails) => {
   const url = `${API_URL}/post`;
-  const username = await AuthHandler.getUsername();
-  const token = await AuthHandler.getToken();
+  const username = await getAuthHandler()?.getUsername();
+  const token = await getAuthHandler()?.getToken();
   if (username === null || token === undefined)
     throw new Error("User Not Authenticated");
   console.log({ createPostDetails });
@@ -367,7 +322,7 @@ export const createPostWithFiles = async (
   progressCallback?: (totalBytes: number, bytesSent: number) => void,
 ) => {
   const url = `${API_CDN_URL}/post-full`;
-  const token = await AuthHandler.getToken();
+  const token = await getAuthHandler()?.getToken();
   if (token === undefined) throw new Error("User Not Authenticated");
 
   if (!progressCallback) {
@@ -419,7 +374,7 @@ export const reportPost = async (id: Uint8Array, text: string) => {
     PostReport.create({ postId: id, description: text }),
   ).finish();
   const url = `${API_URL}/report`;
-  const token = await AuthHandler.getToken();
+  const token = await getAuthHandler()?.getToken();
   if (token === undefined) throw new Error("User Not Authenticated");
   const response = await fetch(url, {
     method: "POST",
@@ -435,8 +390,8 @@ export const reportPost = async (id: Uint8Array, text: string) => {
 };
 
 export const deletePost = async (id: Uint8Array) => {
-  const username = await AuthHandler.getUsername();
-  const token = await AuthHandler.getToken();
+  const username = await getAuthHandler()?.getUsername();
+  const token = await getAuthHandler()?.getToken();
   if (!username || !token) {
     throw new Error("User is not signed in");
   }
@@ -466,4 +421,21 @@ export const getTrendingHashtags = async () => {
   return PostProtos.PostHashtags.decode(
     new Uint8Array(await response.arrayBuffer()),
   );
+};
+
+export const getNotifications = async () => {
+  const url = `${API_URL}/notifications`;
+  const response = await fetch(url, {
+    headers: {
+      authorization: `Bearer ${await getAuthHandler()?.getToken()}`,
+    },
+  });
+
+  if (response.status == 200) {
+    return Notifications.decode(new Uint8Array(await response.arrayBuffer()));
+  } else {
+    throw new Error(
+      `Received unexpected status: ${response.status} ${await response.text()}`,
+    );
+  }
 };
