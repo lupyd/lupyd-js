@@ -7,3 +7,4 @@ export * as UserProtos from "./protos/user";
 export * as ChatProtos from "./protos/chats";
 export * as MdProtos from "./protos/lupyd-md";
 export * as NotificationProtos from "./protos/notification";
+export * from "./auth/auth";
