@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAuthHandler = exports.Auth0Handler = void 0;
 const auth0_spa_js_1 = require("@auth0/auth0-spa-js");
 const constants_1 = require("../constants");
+const user_1 = require("../protos/user");
 let instance = undefined;
 class Auth0Handler {
     client;
@@ -68,7 +69,7 @@ class Auth0Handler {
         return undefined;
     }
     async deleteAccount() {
-        const response = await fetch(`https://${constants_1.API_URL}/user`, {
+        const response = await fetch(`${constants_1.API_URL}/user`, {
             method: "DELETE",
             headers: {
                 authorization: `Bearer ${await this.getToken()}`,
@@ -84,6 +85,22 @@ class Auth0Handler {
     async logout() {
         await this.client.logout();
         this.onAuthStatusChangeCallback(undefined);
+    }
+    async assignUsername(username) {
+        if (await this.getUsername()) {
+            throw Error("Username already assigned");
+        }
+        const response = await fetch(`${constants_1.API_URL}/user`, {
+            method: "POST",
+            body: user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish(),
+        });
+        if (response.status == 201) {
+            await this.getToken(true);
+            return;
+        }
+        if (response.status == 409) {
+            throw new Error(`[${response.status}] ${await response.text()}`);
+        }
     }
 }
 exports.Auth0Handler = Auth0Handler;
