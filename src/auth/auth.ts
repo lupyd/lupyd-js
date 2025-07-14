@@ -1,5 +1,6 @@
 import { Auth0Client, createAuth0Client, User } from "@auth0/auth0-spa-js";
 import { API_URL } from "../constants";
+import { FullUser } from "../protos/user";
 
 let instance: Auth0Handler | undefined = undefined;
 
@@ -92,7 +93,7 @@ export class Auth0Handler {
   }
 
   async deleteAccount() {
-    const response = await fetch(`https://${API_URL}/user`, {
+    const response = await fetch(`${API_URL}/user`, {
       method: "DELETE",
       headers: {
         authorization: `Bearer ${await this.getToken()}`,
@@ -111,6 +112,25 @@ export class Auth0Handler {
   async logout() {
     await this.client.logout();
     this.onAuthStatusChangeCallback(undefined);
+  }
+
+  async assignUsername(username: string) {
+    if (await this.getUsername()) {
+      throw Error("Username already assigned");
+    }
+
+    const response = await fetch(`${API_URL}/user`, {
+      method: "POST",
+      body: FullUser.encode(FullUser.create({ uname: username })).finish(),
+    });
+
+    if (response.status == 201) {
+      await this.getToken(true);
+      return;
+    }
+    if (response.status == 409) {
+      throw new Error(`[${response.status}] ${await response.text()}`);
+    }
   }
 }
 
