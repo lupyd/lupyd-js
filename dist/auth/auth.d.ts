@@ -10,5 +10,6 @@ export declare class Auth0Handler {
     getUsername(): Promise<string | undefined>;
     deleteAccount(): Promise<void>;
     logout(): Promise<void>;
+    assignUsername(username: string): Promise<void>;
 }
 export declare const getAuthHandler: () => Auth0Handler | undefined;
