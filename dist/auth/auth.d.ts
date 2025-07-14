@@ -4,6 +4,7 @@ export declare class Auth0Handler {
     private onAuthStatusChangeCallback;
     constructor(client: Auth0Client, onAuthStatusChangeCallback: (user: User | undefined) => void);
     static initialize(clientId: string, audience: string, onAuthStatusChangeCallback: (user: User | undefined) => void): Promise<Auth0Handler>;
+    login(): Promise<void>;
     getToken(forceReload?: boolean): Promise<string | null>;
     getUser(): Promise<User | undefined>;
     getUsername(): Promise<string | undefined>;

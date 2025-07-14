@@ -50,6 +50,13 @@ export class Auth0Handler {
     return handler;
   }
 
+  async login() {
+    await this.client.loginWithPopup();
+    const user = await this.getUser();
+
+    this.onAuthStatusChangeCallback(user);
+  }
+
   async getToken(forceReload = false) {
     if (!(await this.client.getIdTokenClaims())) {
       return null;
