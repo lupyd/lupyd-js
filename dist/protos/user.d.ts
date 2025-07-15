@@ -7,11 +7,10 @@ export interface BoolValue {
 export interface FullUser {
     uname: string;
     bio: Uint8Array;
-    pfp: boolean;
+    followers: number;
+    settings: number;
     uid: string;
     credits: number;
-    chats: boolean;
-    settings: number;
 }
 export interface FullUserWithProfile {
     user: FullUser | undefined;
@@ -25,15 +24,13 @@ export interface Users {
 }
 export interface UpdateUserInfo {
     bio: PostBody | undefined;
-    pfp: BoolValue | undefined;
-    chats: BoolValue | undefined;
     settings: number;
 }
 export interface User {
     uname: string;
     bio: Uint8Array;
-    pfp: boolean;
-    chats: boolean;
+    settings: number;
+    followers: number;
 }
 export interface Relation {
     uname: string;
