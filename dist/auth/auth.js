@@ -28,7 +28,7 @@ class Auth0Handler {
         await client.checkSession();
         const isAuthenticated = await client.isAuthenticated();
         if (isAuthenticated) {
-            const user = await client.getIdTokenClaims();
+            const user = await handler.getUser();
             handler.onAuthStatusChangeCallback(user);
         }
         else {
@@ -56,7 +56,7 @@ class Auth0Handler {
     }
     async getUser() {
         if (await this.client.isAuthenticated()) {
-            return this.client.getIdTokenClaims();
+            return this.getToken().then(getPayloadFromAccessToken);
         }
     }
     async getUsername() {
@@ -109,3 +109,7 @@ class Auth0Handler {
 exports.Auth0Handler = Auth0Handler;
 const getAuthHandler = () => instance;
 exports.getAuthHandler = getAuthHandler;
+function getPayloadFromAccessToken(token) {
+    const [_header, payload, _signature] = token.split(".");
+    return JSON.parse(payload);
+}

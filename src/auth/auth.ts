@@ -1,16 +1,28 @@
-import { Auth0Client, createAuth0Client, IdToken } from "@auth0/auth0-spa-js";
+import { Auth0Client, createAuth0Client } from "@auth0/auth0-spa-js";
 import { API_URL } from "../constants";
 import { FullUser } from "../protos/user";
 
 let instance: Auth0Handler | undefined = undefined;
 
+export interface DecodedToken {
+  uname: string | undefined;
+  perms: number | undefined;
+  iss: string;
+  aud: string[];
+  iat: number;
+  exp: number;
+  jtl: string;
+  client_id: string;
+  sub: string;
+}
+
 export class Auth0Handler {
   private client: Auth0Client;
-  private onAuthStatusChangeCallback: (user: IdToken | undefined) => void;
+  private onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void;
 
   constructor(
     client: Auth0Client,
-    onAuthStatusChangeCallback: (user: IdToken | undefined) => void,
+    onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void,
   ) {
     this.client = client;
     this.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
@@ -19,7 +31,7 @@ export class Auth0Handler {
   static async initialize(
     clientId: string,
     audience: string,
-    onAuthStatusChangeCallback: (user: IdToken | undefined) => void,
+    onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void,
   ): Promise<Auth0Handler> {
     if (instance) {
       console.error("Already initialized");
@@ -40,7 +52,7 @@ export class Auth0Handler {
     const isAuthenticated = await client.isAuthenticated();
 
     if (isAuthenticated) {
-      const user = await client.getIdTokenClaims();
+      const user = await handler.getUser();
       handler.onAuthStatusChangeCallback(user);
     } else {
       handler.onAuthStatusChangeCallback(undefined);
@@ -76,7 +88,7 @@ export class Auth0Handler {
 
   async getUser() {
     if (await this.client.isAuthenticated()) {
-      return this.client.getIdTokenClaims();
+      return this.getToken().then(getPayloadFromAccessToken);
     }
   }
 
@@ -138,3 +150,8 @@ export class Auth0Handler {
 }
 
 export const getAuthHandler = () => instance;
+
+function getPayloadFromAccessToken(token: string): DecodedToken {
+  const [_header, payload, _signature] = token.split(".");
+  return JSON.parse(payload) as DecodedToken;
+}
