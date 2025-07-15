@@ -92,6 +92,9 @@ class Auth0Handler {
         }
         const response = await fetch(`${constants_1.API_URL}/user`, {
             method: "POST",
+            headers: {
+                authorization: `Bearer ${await this.getToken()}`,
+            },
             body: user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish(),
         });
         if (response.status == 201) {
