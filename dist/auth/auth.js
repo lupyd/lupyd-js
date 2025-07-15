@@ -28,7 +28,7 @@ class Auth0Handler {
         await client.checkSession();
         const isAuthenticated = await client.isAuthenticated();
         if (isAuthenticated) {
-            const user = await client.getUser();
+            const user = await client.getIdTokenClaims();
             handler.onAuthStatusChangeCallback(user);
         }
         else {
@@ -56,7 +56,7 @@ class Auth0Handler {
     }
     async getUser() {
         if (await this.client.isAuthenticated()) {
-            return this.client.getUser();
+            return this.client.getIdTokenClaims();
         }
     }
     async getUsername() {
