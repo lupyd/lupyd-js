@@ -111,5 +111,5 @@ const getAuthHandler = () => instance;
 exports.getAuthHandler = getAuthHandler;
 function getPayloadFromAccessToken(token) {
     const [_header, payload, _signature] = token.split(".");
-    return JSON.parse(payload);
+    return JSON.parse(atob(payload));
 }
