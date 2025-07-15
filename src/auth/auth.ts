@@ -35,6 +35,8 @@ export class Auth0Handler {
   ): Promise<Auth0Handler> {
     if (instance) {
       console.error("Already initialized");
+
+      // instance.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
       return instance;
     }
 
@@ -47,6 +49,7 @@ export class Auth0Handler {
     });
 
     const handler = new Auth0Handler(client, onAuthStatusChangeCallback);
+    instance = handler;
 
     await client.checkSession();
     const isAuthenticated = await client.isAuthenticated();
@@ -57,8 +60,6 @@ export class Auth0Handler {
     } else {
       handler.onAuthStatusChangeCallback(undefined);
     }
-
-    instance = handler;
 
     return handler;
   }
@@ -71,8 +72,8 @@ export class Auth0Handler {
   }
 
   async getToken(forceReload = false) {
-    if (!(await this.client.getIdTokenClaims())) {
-      return null;
+    if (!(await this.client.isAuthenticated())) {
+      return undefined;
     }
 
     const token = await this.client.getTokenSilently({
@@ -87,18 +88,17 @@ export class Auth0Handler {
   }
 
   async getUser() {
-    if (await this.client.isAuthenticated()) {
-      return this.getToken().then(getPayloadFromAccessToken);
+    const token = await this.getToken();
+    if (token) {
+      return getPayloadFromAccessToken(token);
     }
   }
 
   async getUsername(): Promise<string | undefined> {
-    if (await this.client.isAuthenticated()) {
-      const user = await this.client.getUser();
+    const user = await this.getUser();
 
-      if (user) {
-        return "uname" in user ? user["uname"] : undefined;
-      }
+    if (user) {
+      return "uname" in user ? user["uname"] : undefined;
     }
 
     return undefined;
