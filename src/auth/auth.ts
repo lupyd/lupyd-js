@@ -5,8 +5,8 @@ import { FullUser } from "../protos/user";
 let instance: Auth0Handler | undefined = undefined;
 
 export interface DecodedToken {
-  uname: string;
-  perms: number;
+  uname: string | undefined;
+  perms: number | undefined;
   iss: string;
   aud: string[];
   iat: number;
