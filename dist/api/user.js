@@ -181,6 +181,9 @@ class UserRelationsState {
 }
 exports.UserRelationsState = UserRelationsState;
 async function getUserRelations() {
+    if (!(await (0, auth_1.getAuthHandler)()?.getUsername())) {
+        throw new Error("User haven't completed their sign in setup");
+    }
     const token = await (0, auth_1.getAuthHandler)()?.getToken();
     const response = await fetch(`${constants_1.API_URL}/relations`, {
         headers: {
@@ -193,6 +196,9 @@ async function getUserRelations() {
     return __1.UserProtos.Relations.decode(new Uint8Array(await response.arrayBuffer()));
 }
 async function updateUserRelation(username, relation) {
+    if (!(await (0, auth_1.getAuthHandler)()?.getUsername())) {
+        throw new Error("User haven't completed their sign in setup");
+    }
     const token = await (0, auth_1.getAuthHandler)()?.getToken();
     const response = await fetch(`${constants_1.API_URL}/relation?user=${username}&relation=${(0, exports.relationToString)(relation)}`, {
         method: "PUT",
