@@ -1,12 +1,12 @@
-import { Auth0Client, User } from "@auth0/auth0-spa-js";
+import { Auth0Client, IdToken } from "@auth0/auth0-spa-js";
 export declare class Auth0Handler {
     private client;
     private onAuthStatusChangeCallback;
-    constructor(client: Auth0Client, onAuthStatusChangeCallback: (user: User | undefined) => void);
-    static initialize(clientId: string, audience: string, onAuthStatusChangeCallback: (user: User | undefined) => void): Promise<Auth0Handler>;
+    constructor(client: Auth0Client, onAuthStatusChangeCallback: (user: IdToken | undefined) => void);
+    static initialize(clientId: string, audience: string, onAuthStatusChangeCallback: (user: IdToken | undefined) => void): Promise<Auth0Handler>;
     login(): Promise<void>;
     getToken(forceReload?: boolean): Promise<string | null>;
-    getUser(): Promise<User | undefined>;
+    getUser(): Promise<IdToken | undefined>;
     getUsername(): Promise<string | undefined>;
     deleteAccount(): Promise<void>;
     logout(): Promise<void>;

@@ -1,4 +1,4 @@
-import { Auth0Client, createAuth0Client, User } from "@auth0/auth0-spa-js";
+import { Auth0Client, createAuth0Client, IdToken } from "@auth0/auth0-spa-js";
 import { API_URL } from "../constants";
 import { FullUser } from "../protos/user";
 
@@ -6,11 +6,11 @@ let instance: Auth0Handler | undefined = undefined;
 
 export class Auth0Handler {
   private client: Auth0Client;
-  private onAuthStatusChangeCallback: (user: User | undefined) => void;
+  private onAuthStatusChangeCallback: (user: IdToken | undefined) => void;
 
   constructor(
     client: Auth0Client,
-    onAuthStatusChangeCallback: (user: User | undefined) => void,
+    onAuthStatusChangeCallback: (user: IdToken | undefined) => void,
   ) {
     this.client = client;
     this.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
@@ -19,7 +19,7 @@ export class Auth0Handler {
   static async initialize(
     clientId: string,
     audience: string,
-    onAuthStatusChangeCallback: (user: User | undefined) => void,
+    onAuthStatusChangeCallback: (user: IdToken | undefined) => void,
   ): Promise<Auth0Handler> {
     if (instance) {
       console.error("Already initialized");
@@ -40,7 +40,7 @@ export class Auth0Handler {
     const isAuthenticated = await client.isAuthenticated();
 
     if (isAuthenticated) {
-      const user = await client.getUser();
+      const user = await client.getIdTokenClaims();
       handler.onAuthStatusChangeCallback(user);
     } else {
       handler.onAuthStatusChangeCallback(undefined);
@@ -76,7 +76,7 @@ export class Auth0Handler {
 
   async getUser() {
     if (await this.client.isAuthenticated()) {
-      return this.client.getUser();
+      return this.client.getIdTokenClaims();
     }
   }
 
