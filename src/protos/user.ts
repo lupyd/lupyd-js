@@ -17,11 +17,10 @@ export interface BoolValue {
 export interface FullUser {
   uname: string;
   bio: Uint8Array;
-  pfp: boolean;
+  followers: number;
+  settings: number;
   uid: string;
   credits: number;
-  chats: boolean;
-  settings: number;
 }
 
 export interface FullUserWithProfile {
@@ -39,16 +38,14 @@ export interface Users {
 
 export interface UpdateUserInfo {
   bio: PostBody | undefined;
-  pfp: BoolValue | undefined;
-  chats: BoolValue | undefined;
   settings: number;
 }
 
 export interface User {
   uname: string;
   bio: Uint8Array;
-  pfp: boolean;
-  chats: boolean;
+  settings: number;
+  followers: number;
 }
 
 export interface Relation {
@@ -120,7 +117,7 @@ export const BoolValue: MessageFns<BoolValue> = {
 };
 
 function createBaseFullUser(): FullUser {
-  return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false, settings: 0 };
+  return { uname: "", bio: new Uint8Array(0), followers: 0, settings: 0, uid: "", credits: 0 };
 }
 
 export const FullUser: MessageFns<FullUser> = {
@@ -131,20 +128,17 @@ export const FullUser: MessageFns<FullUser> = {
     if (message.bio.length !== 0) {
       writer.uint32(18).bytes(message.bio);
     }
-    if (message.pfp !== false) {
-      writer.uint32(24).bool(message.pfp);
-    }
-    if (message.uid !== "") {
-      writer.uint32(34).string(message.uid);
-    }
-    if (message.credits !== 0) {
-      writer.uint32(45).float(message.credits);
-    }
-    if (message.chats !== false) {
-      writer.uint32(48).bool(message.chats);
+    if (message.followers !== 0) {
+      writer.uint32(24).int32(message.followers);
     }
     if (message.settings !== 0) {
-      writer.uint32(56).int32(message.settings);
+      writer.uint32(32).int32(message.settings);
+    }
+    if (message.uid !== "") {
+      writer.uint32(42).string(message.uid);
+    }
+    if (message.credits !== 0) {
+      writer.uint32(53).float(message.credits);
     }
     return writer;
   },
@@ -177,39 +171,31 @@ export const FullUser: MessageFns<FullUser> = {
             break;
           }
 
-          message.pfp = reader.bool();
+          message.followers = reader.int32();
           continue;
         }
         case 4: {
-          if (tag !== 34) {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.settings = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
           message.uid = reader.string();
           continue;
         }
-        case 5: {
-          if (tag !== 45) {
+        case 6: {
+          if (tag !== 53) {
             break;
           }
 
           message.credits = reader.float();
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.chats = reader.bool();
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.settings = reader.int32();
           continue;
         }
       }
@@ -225,11 +211,10 @@ export const FullUser: MessageFns<FullUser> = {
     return {
       uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
       bio: isSet(object.bio) ? bytesFromBase64(object.bio) : new Uint8Array(0),
-      pfp: isSet(object.pfp) ? globalThis.Boolean(object.pfp) : false,
+      followers: isSet(object.followers) ? globalThis.Number(object.followers) : 0,
+      settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
       uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
       credits: isSet(object.credits) ? globalThis.Number(object.credits) : 0,
-      chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
-      settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
     };
   },
 
@@ -241,20 +226,17 @@ export const FullUser: MessageFns<FullUser> = {
     if (message.bio.length !== 0) {
       obj.bio = base64FromBytes(message.bio);
     }
-    if (message.pfp !== false) {
-      obj.pfp = message.pfp;
+    if (message.followers !== 0) {
+      obj.followers = Math.round(message.followers);
+    }
+    if (message.settings !== 0) {
+      obj.settings = Math.round(message.settings);
     }
     if (message.uid !== "") {
       obj.uid = message.uid;
     }
     if (message.credits !== 0) {
       obj.credits = message.credits;
-    }
-    if (message.chats !== false) {
-      obj.chats = message.chats;
-    }
-    if (message.settings !== 0) {
-      obj.settings = Math.round(message.settings);
     }
     return obj;
   },
@@ -266,11 +248,10 @@ export const FullUser: MessageFns<FullUser> = {
     const message = createBaseFullUser();
     message.uname = object.uname ?? "";
     message.bio = object.bio ?? new Uint8Array(0);
-    message.pfp = object.pfp ?? false;
+    message.followers = object.followers ?? 0;
+    message.settings = object.settings ?? 0;
     message.uid = object.uid ?? "";
     message.credits = object.credits ?? 0;
-    message.chats = object.chats ?? false;
-    message.settings = object.settings ?? 0;
     return message;
   },
 };
@@ -468,19 +449,13 @@ export const Users: MessageFns<Users> = {
 };
 
 function createBaseUpdateUserInfo(): UpdateUserInfo {
-  return { bio: undefined, pfp: undefined, chats: undefined, settings: 0 };
+  return { bio: undefined, settings: 0 };
 }
 
 export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
   encode(message: UpdateUserInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.bio !== undefined) {
       PostBody.encode(message.bio, writer.uint32(10).fork()).join();
-    }
-    if (message.pfp !== undefined) {
-      BoolValue.encode(message.pfp, writer.uint32(18).fork()).join();
-    }
-    if (message.chats !== undefined) {
-      BoolValue.encode(message.chats, writer.uint32(26).fork()).join();
     }
     if (message.settings !== 0) {
       writer.uint32(32).int32(message.settings);
@@ -503,22 +478,6 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
           message.bio = PostBody.decode(reader, reader.uint32());
           continue;
         }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.pfp = BoolValue.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.chats = BoolValue.decode(reader, reader.uint32());
-          continue;
-        }
         case 4: {
           if (tag !== 32) {
             break;
@@ -539,8 +498,6 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
   fromJSON(object: any): UpdateUserInfo {
     return {
       bio: isSet(object.bio) ? PostBody.fromJSON(object.bio) : undefined,
-      pfp: isSet(object.pfp) ? BoolValue.fromJSON(object.pfp) : undefined,
-      chats: isSet(object.chats) ? BoolValue.fromJSON(object.chats) : undefined,
       settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
     };
   },
@@ -549,12 +506,6 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
     const obj: any = {};
     if (message.bio !== undefined) {
       obj.bio = PostBody.toJSON(message.bio);
-    }
-    if (message.pfp !== undefined) {
-      obj.pfp = BoolValue.toJSON(message.pfp);
-    }
-    if (message.chats !== undefined) {
-      obj.chats = BoolValue.toJSON(message.chats);
     }
     if (message.settings !== 0) {
       obj.settings = Math.round(message.settings);
@@ -568,17 +519,13 @@ export const UpdateUserInfo: MessageFns<UpdateUserInfo> = {
   fromPartial<I extends Exact<DeepPartial<UpdateUserInfo>, I>>(object: I): UpdateUserInfo {
     const message = createBaseUpdateUserInfo();
     message.bio = (object.bio !== undefined && object.bio !== null) ? PostBody.fromPartial(object.bio) : undefined;
-    message.pfp = (object.pfp !== undefined && object.pfp !== null) ? BoolValue.fromPartial(object.pfp) : undefined;
-    message.chats = (object.chats !== undefined && object.chats !== null)
-      ? BoolValue.fromPartial(object.chats)
-      : undefined;
     message.settings = object.settings ?? 0;
     return message;
   },
 };
 
 function createBaseUser(): User {
-  return { uname: "", bio: new Uint8Array(0), pfp: false, chats: false };
+  return { uname: "", bio: new Uint8Array(0), settings: 0, followers: 0 };
 }
 
 export const User: MessageFns<User> = {
@@ -589,11 +536,11 @@ export const User: MessageFns<User> = {
     if (message.bio.length !== 0) {
       writer.uint32(18).bytes(message.bio);
     }
-    if (message.pfp !== false) {
-      writer.uint32(24).bool(message.pfp);
+    if (message.settings !== 0) {
+      writer.uint32(24).int32(message.settings);
     }
-    if (message.chats !== false) {
-      writer.uint32(32).bool(message.chats);
+    if (message.followers !== 0) {
+      writer.uint32(32).int32(message.followers);
     }
     return writer;
   },
@@ -626,7 +573,7 @@ export const User: MessageFns<User> = {
             break;
           }
 
-          message.pfp = reader.bool();
+          message.settings = reader.int32();
           continue;
         }
         case 4: {
@@ -634,7 +581,7 @@ export const User: MessageFns<User> = {
             break;
           }
 
-          message.chats = reader.bool();
+          message.followers = reader.int32();
           continue;
         }
       }
@@ -650,8 +597,8 @@ export const User: MessageFns<User> = {
     return {
       uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
       bio: isSet(object.bio) ? bytesFromBase64(object.bio) : new Uint8Array(0),
-      pfp: isSet(object.pfp) ? globalThis.Boolean(object.pfp) : false,
-      chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
+      settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
+      followers: isSet(object.followers) ? globalThis.Number(object.followers) : 0,
     };
   },
 
@@ -663,11 +610,11 @@ export const User: MessageFns<User> = {
     if (message.bio.length !== 0) {
       obj.bio = base64FromBytes(message.bio);
     }
-    if (message.pfp !== false) {
-      obj.pfp = message.pfp;
+    if (message.settings !== 0) {
+      obj.settings = Math.round(message.settings);
     }
-    if (message.chats !== false) {
-      obj.chats = message.chats;
+    if (message.followers !== 0) {
+      obj.followers = Math.round(message.followers);
     }
     return obj;
   },
@@ -679,8 +626,8 @@ export const User: MessageFns<User> = {
     const message = createBaseUser();
     message.uname = object.uname ?? "";
     message.bio = object.bio ?? new Uint8Array(0);
-    message.pfp = object.pfp ?? false;
-    message.chats = object.chats ?? false;
+    message.settings = object.settings ?? 0;
+    message.followers = object.followers ?? 0;
     return message;
   },
 };

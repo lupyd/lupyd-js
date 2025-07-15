@@ -62,7 +62,7 @@ exports.BoolValue = {
     },
 };
 function createBaseFullUser() {
-    return { uname: "", bio: new Uint8Array(0), pfp: false, uid: "", credits: 0, chats: false, settings: 0 };
+    return { uname: "", bio: new Uint8Array(0), followers: 0, settings: 0, uid: "", credits: 0 };
 }
 exports.FullUser = {
     encode(message, writer = new wire_1.BinaryWriter()) {
@@ -72,20 +72,17 @@ exports.FullUser = {
         if (message.bio.length !== 0) {
             writer.uint32(18).bytes(message.bio);
         }
-        if (message.pfp !== false) {
-            writer.uint32(24).bool(message.pfp);
-        }
-        if (message.uid !== "") {
-            writer.uint32(34).string(message.uid);
-        }
-        if (message.credits !== 0) {
-            writer.uint32(45).float(message.credits);
-        }
-        if (message.chats !== false) {
-            writer.uint32(48).bool(message.chats);
+        if (message.followers !== 0) {
+            writer.uint32(24).int32(message.followers);
         }
         if (message.settings !== 0) {
-            writer.uint32(56).int32(message.settings);
+            writer.uint32(32).int32(message.settings);
+        }
+        if (message.uid !== "") {
+            writer.uint32(42).string(message.uid);
+        }
+        if (message.credits !== 0) {
+            writer.uint32(53).float(message.credits);
         }
         return writer;
     },
@@ -114,35 +111,28 @@ exports.FullUser = {
                     if (tag !== 24) {
                         break;
                     }
-                    message.pfp = reader.bool();
+                    message.followers = reader.int32();
                     continue;
                 }
                 case 4: {
-                    if (tag !== 34) {
+                    if (tag !== 32) {
+                        break;
+                    }
+                    message.settings = reader.int32();
+                    continue;
+                }
+                case 5: {
+                    if (tag !== 42) {
                         break;
                     }
                     message.uid = reader.string();
                     continue;
                 }
-                case 5: {
-                    if (tag !== 45) {
+                case 6: {
+                    if (tag !== 53) {
                         break;
                     }
                     message.credits = reader.float();
-                    continue;
-                }
-                case 6: {
-                    if (tag !== 48) {
-                        break;
-                    }
-                    message.chats = reader.bool();
-                    continue;
-                }
-                case 7: {
-                    if (tag !== 56) {
-                        break;
-                    }
-                    message.settings = reader.int32();
                     continue;
                 }
             }
@@ -157,11 +147,10 @@ exports.FullUser = {
         return {
             uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
             bio: isSet(object.bio) ? bytesFromBase64(object.bio) : new Uint8Array(0),
-            pfp: isSet(object.pfp) ? globalThis.Boolean(object.pfp) : false,
+            followers: isSet(object.followers) ? globalThis.Number(object.followers) : 0,
+            settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
             uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
             credits: isSet(object.credits) ? globalThis.Number(object.credits) : 0,
-            chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
-            settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
         };
     },
     toJSON(message) {
@@ -172,20 +161,17 @@ exports.FullUser = {
         if (message.bio.length !== 0) {
             obj.bio = base64FromBytes(message.bio);
         }
-        if (message.pfp !== false) {
-            obj.pfp = message.pfp;
+        if (message.followers !== 0) {
+            obj.followers = Math.round(message.followers);
+        }
+        if (message.settings !== 0) {
+            obj.settings = Math.round(message.settings);
         }
         if (message.uid !== "") {
             obj.uid = message.uid;
         }
         if (message.credits !== 0) {
             obj.credits = message.credits;
-        }
-        if (message.chats !== false) {
-            obj.chats = message.chats;
-        }
-        if (message.settings !== 0) {
-            obj.settings = Math.round(message.settings);
         }
         return obj;
     },
@@ -196,11 +182,10 @@ exports.FullUser = {
         const message = createBaseFullUser();
         message.uname = object.uname ?? "";
         message.bio = object.bio ?? new Uint8Array(0);
-        message.pfp = object.pfp ?? false;
+        message.followers = object.followers ?? 0;
+        message.settings = object.settings ?? 0;
         message.uid = object.uid ?? "";
         message.credits = object.credits ?? 0;
-        message.chats = object.chats ?? false;
-        message.settings = object.settings ?? 0;
         return message;
     },
 };
@@ -375,18 +360,12 @@ exports.Users = {
     },
 };
 function createBaseUpdateUserInfo() {
-    return { bio: undefined, pfp: undefined, chats: undefined, settings: 0 };
+    return { bio: undefined, settings: 0 };
 }
 exports.UpdateUserInfo = {
     encode(message, writer = new wire_1.BinaryWriter()) {
         if (message.bio !== undefined) {
             post_1.PostBody.encode(message.bio, writer.uint32(10).fork()).join();
-        }
-        if (message.pfp !== undefined) {
-            exports.BoolValue.encode(message.pfp, writer.uint32(18).fork()).join();
-        }
-        if (message.chats !== undefined) {
-            exports.BoolValue.encode(message.chats, writer.uint32(26).fork()).join();
         }
         if (message.settings !== 0) {
             writer.uint32(32).int32(message.settings);
@@ -407,20 +386,6 @@ exports.UpdateUserInfo = {
                     message.bio = post_1.PostBody.decode(reader, reader.uint32());
                     continue;
                 }
-                case 2: {
-                    if (tag !== 18) {
-                        break;
-                    }
-                    message.pfp = exports.BoolValue.decode(reader, reader.uint32());
-                    continue;
-                }
-                case 3: {
-                    if (tag !== 26) {
-                        break;
-                    }
-                    message.chats = exports.BoolValue.decode(reader, reader.uint32());
-                    continue;
-                }
                 case 4: {
                     if (tag !== 32) {
                         break;
@@ -439,8 +404,6 @@ exports.UpdateUserInfo = {
     fromJSON(object) {
         return {
             bio: isSet(object.bio) ? post_1.PostBody.fromJSON(object.bio) : undefined,
-            pfp: isSet(object.pfp) ? exports.BoolValue.fromJSON(object.pfp) : undefined,
-            chats: isSet(object.chats) ? exports.BoolValue.fromJSON(object.chats) : undefined,
             settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
         };
     },
@@ -448,12 +411,6 @@ exports.UpdateUserInfo = {
         const obj = {};
         if (message.bio !== undefined) {
             obj.bio = post_1.PostBody.toJSON(message.bio);
-        }
-        if (message.pfp !== undefined) {
-            obj.pfp = exports.BoolValue.toJSON(message.pfp);
-        }
-        if (message.chats !== undefined) {
-            obj.chats = exports.BoolValue.toJSON(message.chats);
         }
         if (message.settings !== 0) {
             obj.settings = Math.round(message.settings);
@@ -466,16 +423,12 @@ exports.UpdateUserInfo = {
     fromPartial(object) {
         const message = createBaseUpdateUserInfo();
         message.bio = (object.bio !== undefined && object.bio !== null) ? post_1.PostBody.fromPartial(object.bio) : undefined;
-        message.pfp = (object.pfp !== undefined && object.pfp !== null) ? exports.BoolValue.fromPartial(object.pfp) : undefined;
-        message.chats = (object.chats !== undefined && object.chats !== null)
-            ? exports.BoolValue.fromPartial(object.chats)
-            : undefined;
         message.settings = object.settings ?? 0;
         return message;
     },
 };
 function createBaseUser() {
-    return { uname: "", bio: new Uint8Array(0), pfp: false, chats: false };
+    return { uname: "", bio: new Uint8Array(0), settings: 0, followers: 0 };
 }
 exports.User = {
     encode(message, writer = new wire_1.BinaryWriter()) {
@@ -485,11 +438,11 @@ exports.User = {
         if (message.bio.length !== 0) {
             writer.uint32(18).bytes(message.bio);
         }
-        if (message.pfp !== false) {
-            writer.uint32(24).bool(message.pfp);
+        if (message.settings !== 0) {
+            writer.uint32(24).int32(message.settings);
         }
-        if (message.chats !== false) {
-            writer.uint32(32).bool(message.chats);
+        if (message.followers !== 0) {
+            writer.uint32(32).int32(message.followers);
         }
         return writer;
     },
@@ -518,14 +471,14 @@ exports.User = {
                     if (tag !== 24) {
                         break;
                     }
-                    message.pfp = reader.bool();
+                    message.settings = reader.int32();
                     continue;
                 }
                 case 4: {
                     if (tag !== 32) {
                         break;
                     }
-                    message.chats = reader.bool();
+                    message.followers = reader.int32();
                     continue;
                 }
             }
@@ -540,8 +493,8 @@ exports.User = {
         return {
             uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
             bio: isSet(object.bio) ? bytesFromBase64(object.bio) : new Uint8Array(0),
-            pfp: isSet(object.pfp) ? globalThis.Boolean(object.pfp) : false,
-            chats: isSet(object.chats) ? globalThis.Boolean(object.chats) : false,
+            settings: isSet(object.settings) ? globalThis.Number(object.settings) : 0,
+            followers: isSet(object.followers) ? globalThis.Number(object.followers) : 0,
         };
     },
     toJSON(message) {
@@ -552,11 +505,11 @@ exports.User = {
         if (message.bio.length !== 0) {
             obj.bio = base64FromBytes(message.bio);
         }
-        if (message.pfp !== false) {
-            obj.pfp = message.pfp;
+        if (message.settings !== 0) {
+            obj.settings = Math.round(message.settings);
         }
-        if (message.chats !== false) {
-            obj.chats = message.chats;
+        if (message.followers !== 0) {
+            obj.followers = Math.round(message.followers);
         }
         return obj;
     },
@@ -567,8 +520,8 @@ exports.User = {
         const message = createBaseUser();
         message.uname = object.uname ?? "";
         message.bio = object.bio ?? new Uint8Array(0);
-        message.pfp = object.pfp ?? false;
-        message.chats = object.chats ?? false;
+        message.settings = object.settings ?? 0;
+        message.followers = object.followers ?? 0;
         return message;
     },
 };
