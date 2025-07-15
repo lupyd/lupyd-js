@@ -15,6 +15,7 @@ class Auth0Handler {
     static async initialize(clientId, audience, onAuthStatusChangeCallback) {
         if (instance) {
             console.error("Already initialized");
+            // instance.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
             return instance;
         }
         const client = await (0, auth0_spa_js_1.createAuth0Client)({
@@ -25,6 +26,7 @@ class Auth0Handler {
             },
         });
         const handler = new Auth0Handler(client, onAuthStatusChangeCallback);
+        instance = handler;
         await client.checkSession();
         const isAuthenticated = await client.isAuthenticated();
         if (isAuthenticated) {
@@ -34,7 +36,6 @@ class Auth0Handler {
         else {
             handler.onAuthStatusChangeCallback(undefined);
         }
-        instance = handler;
         return handler;
     }
     async login() {
@@ -43,8 +44,8 @@ class Auth0Handler {
         this.onAuthStatusChangeCallback(user);
     }
     async getToken(forceReload = false) {
-        if (!(await this.client.getIdTokenClaims())) {
-            return null;
+        if (!(await this.client.isAuthenticated())) {
+            return undefined;
         }
         const token = await this.client.getTokenSilently({
             cacheMode: forceReload ? "off" : "on",
@@ -55,16 +56,15 @@ class Auth0Handler {
         return token;
     }
     async getUser() {
-        if (await this.client.isAuthenticated()) {
-            return this.getToken().then(getPayloadFromAccessToken);
+        const token = await this.getToken();
+        if (token) {
+            return getPayloadFromAccessToken(token);
         }
     }
     async getUsername() {
-        if (await this.client.isAuthenticated()) {
-            const user = await this.client.getUser();
-            if (user) {
-                return "uname" in user ? user["uname"] : undefined;
-            }
+        const user = await this.getUser();
+        if (user) {
+            return "uname" in user ? user["uname"] : undefined;
         }
         return undefined;
     }
