@@ -212,6 +212,10 @@ export class UserRelationsState {
 }
 
 export async function getUserRelations() {
+  if (!(await getAuthHandler()?.getUsername())) {
+    throw new Error("User haven't completed their sign in setup");
+  }
+
   const token = await getAuthHandler()?.getToken();
   const response = await fetch(`${API_URL}/relations`, {
     headers: {
@@ -231,6 +235,10 @@ export async function getUserRelations() {
 }
 
 export async function updateUserRelation(username: string, relation: Relation) {
+  if (!(await getAuthHandler()?.getUsername())) {
+    throw new Error("User haven't completed their sign in setup");
+  }
+
   const token = await getAuthHandler()?.getToken();
 
   const response = await fetch(
