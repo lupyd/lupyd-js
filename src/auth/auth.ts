@@ -153,5 +153,5 @@ export const getAuthHandler = () => instance;
 
 function getPayloadFromAccessToken(token: string): DecodedToken {
   const [_header, payload, _signature] = token.split(".");
-  return JSON.parse(payload) as DecodedToken;
+  return JSON.parse(atob(payload)) as DecodedToken;
 }
