@@ -17,7 +17,7 @@ export declare class UserRelationsState {
     private followedUsers;
     private blockedUsers;
     onUpdate: (followedUsers: string[], blockedUsers: string[]) => void;
-    constructor(onUpdate: (_: any, __: any) => {});
+    constructor(onUpdate: (followed: string[], blocked: string[]) => {});
     refresh(): Promise<void>;
     private fromRelations;
     private callUpdate;

@@ -150,7 +150,7 @@ export class UserRelationsState {
 
   onUpdate: (followedUsers: string[], blockedUsers: string[]) => void;
 
-  constructor(onUpdate: (_, __) => {}) {
+  constructor(onUpdate: (followed: string[], blocked: string[]) => {}) {
     this.onUpdate = onUpdate;
     this.followedUsers = new Set();
     this.blockedUsers = new Set();
