@@ -7,8 +7,8 @@ const utils_1 = require("../bin/utils");
 const __1 = require("..");
 const notification_1 = require("../protos/notification");
 const auth_1 = require("../auth/auth");
-const getPost = async (id) => {
-    const url = `${constants_1.API_URL}/post/${id}`;
+const getPost = async (apiUrl, id) => {
+    const url = `${apiUrl}/post/${id}`;
     const response = await fetch(url);
     if (response.status === 200) {
         return post_1.FullPost.decode(new Uint8Array(await response.arrayBuffer()));
