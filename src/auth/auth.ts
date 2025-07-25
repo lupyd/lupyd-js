@@ -65,7 +65,9 @@ export class Auth0Handler {
   }
 
   async login() {
-    await this.client.loginWithPopup();
+    await this.client.loginWithPopup(undefined, {
+      timeoutInSeconds: 60 * 10,
+    });
     const user = await this.getUser();
 
     this.onAuthStatusChangeCallback(user);

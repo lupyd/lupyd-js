@@ -20,8 +20,8 @@ import { PostProtos } from "..";
 import { Notifications } from "../protos/notification";
 import { getAuthHandler } from "../auth/auth";
 
-export const getPost = async (id: string) => {
-  const url = `${API_URL}/post/${id}`;
+export const getPost = async (apiUrl: string, id: string) => {
+  const url = `${apiUrl}/post/${id}`;
   const response = await fetch(url);
 
   if (response.status === 200) {
