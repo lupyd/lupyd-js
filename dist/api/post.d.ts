@@ -1,7 +1,7 @@
 import { CreatePostDetails, CreatePostWithFiles, FullPost, Vote } from "../protos/post";
 import { PostProtos } from "..";
 import { Notifications } from "../protos/notification";
-export declare const getPost: (id: string) => Promise<FullPost | undefined>;
+export declare const getPost: (apiUrl: string, id: string) => Promise<FullPost | undefined>;
 export declare enum FetchType {
     Latest = 0,
     Users = 1,
