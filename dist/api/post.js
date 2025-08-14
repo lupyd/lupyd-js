@@ -171,7 +171,7 @@ const putVotes = async (votes) => {
         if (!token) {
             throw new Error(`User not authenticated`);
         }
-        const body = post_1.Votes.encode(post_1.Votes.create({ votes })).finish();
+        const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
         const response = await fetch(url, {
             method: "PUT",
             body,
@@ -214,7 +214,7 @@ const createPost = async (createPostDetails) => {
     const response = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: post_1.CreatePostDetails.encode(createPostDetails).finish(),
+        body: new Uint8Array(post_1.CreatePostDetails.encode(createPostDetails).finish()),
     });
     if (response.status === 200) {
         const id = new Uint8Array(await response.arrayBuffer());
@@ -238,7 +238,7 @@ const createPost = async (createPostDetails) => {
 };
 exports.createPost = createPost;
 const makeCreatePostWithFilesBlob = async (details, files) => {
-    const detailsProto = post_1.CreatePostWithFiles.encode(details).finish();
+    const detailsProto = new Uint8Array(post_1.CreatePostWithFiles.encode(details).finish());
     const contentLength = detailsProto.byteLength +
         8 +
         details.files.map((e) => Number(e.length)).reduce((a, b) => a + b);
@@ -297,7 +297,7 @@ const createPostWithFiles = async (createPostDetails, files, progressCallback) =
 };
 exports.createPostWithFiles = createPostWithFiles;
 const reportPost = async (id, text) => {
-    const body = post_1.PostReport.encode(post_1.PostReport.create({ postId: id, description: text })).finish();
+    const body = new Uint8Array(post_1.PostReport.encode(post_1.PostReport.create({ postId: id, description: text })).finish());
     const url = `${constants_1.API_URL}/report`;
     const token = await (0, auth_1.getAuthHandler)()?.getToken();
     if (token === undefined)

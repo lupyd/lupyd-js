@@ -39,9 +39,18 @@ class Auth0Handler {
         return handler;
     }
     async login() {
-        await this.client.loginWithPopup(undefined, {
-            timeoutInSeconds: 60 * 10,
-        });
+        if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE === "true") {
+            await this.client.loginWithPopup(undefined, {
+                timeoutInSeconds: 60 * 10,
+            });
+        }
+        else {
+            await this.client.loginWithRedirect({
+                openUrl(url) {
+                    window.open(url);
+                },
+            });
+        }
         const user = await this.getUser();
         this.onAuthStatusChangeCallback(user);
     }
@@ -97,7 +106,7 @@ class Auth0Handler {
             headers: {
                 authorization: `Bearer ${await this.getToken()}`,
             },
-            body: user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish(),
+            body: new Uint8Array(user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish()),
         });
         if (response.status == 201) {
             await this.getToken(true);

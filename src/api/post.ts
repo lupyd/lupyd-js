@@ -216,7 +216,7 @@ export const putVotes = async (votes: Vote[]) => {
     if (!token) {
       throw new Error(`User not authenticated`);
     }
-    const body = Votes.encode(Votes.create({ votes })).finish();
+    const body = new Uint8Array(Votes.encode(Votes.create({ votes })).finish());
     const response = await fetch(url, {
       method: "PUT",
       body,
@@ -258,7 +258,7 @@ export const createPost = async (createPostDetails: CreatePostDetails) => {
   const response = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    body: CreatePostDetails.encode(createPostDetails).finish(),
+    body: new Uint8Array(CreatePostDetails.encode(createPostDetails).finish()),
   });
   if (response.status === 200) {
     const id = new Uint8Array(await response.arrayBuffer());
@@ -287,7 +287,9 @@ const makeCreatePostWithFilesBlob = async (
   details: CreatePostWithFiles,
   files: string[],
 ) => {
-  const detailsProto = CreatePostWithFiles.encode(details).finish();
+  const detailsProto = new Uint8Array(
+    CreatePostWithFiles.encode(details).finish(),
+  );
   const contentLength =
     detailsProto.byteLength +
     8 +
@@ -370,9 +372,11 @@ export const createPostWithFiles = async (
 };
 
 export const reportPost = async (id: Uint8Array, text: string) => {
-  const body = PostReport.encode(
-    PostReport.create({ postId: id, description: text }),
-  ).finish();
+  const body = new Uint8Array(
+    PostReport.encode(
+      PostReport.create({ postId: id, description: text }),
+    ).finish(),
+  );
   const url = `${API_URL}/report`;
   const token = await getAuthHandler()?.getToken();
   if (token === undefined) throw new Error("User Not Authenticated");

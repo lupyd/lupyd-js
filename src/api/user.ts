@@ -69,7 +69,7 @@ export const updateUser = async (info: UpdateUserInfo) => {
 
   const response = await fetch(`${API_URL}/user`, {
     method: "PUT",
-    body: UpdateUserInfo.encode(info).finish(),
+    body: new Uint8Array(UpdateUserInfo.encode(info).finish()),
     headers: {
       "content-type": "application/protobuf; proto=lupyd.user.UpdateUserInfo",
       authorization: `Bearer ${token}`,
