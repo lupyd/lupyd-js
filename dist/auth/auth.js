@@ -12,7 +12,7 @@ class Auth0Handler {
         this.client = client;
         this.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
     }
-    static async initialize(clientId, audience, onAuthStatusChangeCallback) {
+    static async initialize(clientId, audience, redirectUrl, onAuthStatusChangeCallback) {
         if (instance) {
             console.error("Already initialized");
             // instance.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
@@ -23,6 +23,7 @@ class Auth0Handler {
             clientId,
             authorizationParams: {
                 audience: audience,
+                redirect_uri: redirectUrl,
             },
         });
         const handler = new Auth0Handler(client, onAuthStatusChangeCallback);

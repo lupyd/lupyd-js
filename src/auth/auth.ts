@@ -31,6 +31,7 @@ export class Auth0Handler {
   static async initialize(
     clientId: string,
     audience: string,
+    redirectUrl: string,
     onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void,
   ): Promise<Auth0Handler> {
     if (instance) {
@@ -45,6 +46,7 @@ export class Auth0Handler {
       clientId,
       authorizationParams: {
         audience: audience,
+        redirect_uri: redirectUrl,
       },
     });
 
