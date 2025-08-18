@@ -15,12 +15,13 @@ export declare class Auth0Handler {
     private onAuthStatusChangeCallback;
     constructor(client: Auth0Client, onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void);
     static initialize(clientId: string, audience: string, redirectUrl: string, onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void): Promise<Auth0Handler>;
-    login(): Promise<void>;
+    login(appState: any): Promise<void>;
     getToken(forceReload?: boolean): Promise<string | undefined>;
     getUser(): Promise<DecodedToken | undefined>;
     getUsername(): Promise<string | undefined>;
     deleteAccount(): Promise<void>;
     logout(): Promise<void>;
     assignUsername(username: string): Promise<void>;
+    handleRedirectCallback(): Promise<any>;
 }
 export declare const getAuthHandler: () => Auth0Handler | undefined;

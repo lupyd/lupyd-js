@@ -39,7 +39,7 @@ class Auth0Handler {
         }
         return handler;
     }
-    async login() {
+    async login(appState) {
         if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE === "true") {
             await this.client.loginWithPopup(undefined, {
                 timeoutInSeconds: 60 * 10,
@@ -47,6 +47,7 @@ class Auth0Handler {
         }
         else {
             await this.client.loginWithRedirect({
+                appState,
                 openUrl(url) {
                     window.open(url);
                 },
@@ -116,6 +117,10 @@ class Auth0Handler {
         if (response.status == 409) {
             throw new Error(`[${response.status}] ${await response.text()}`);
         }
+    }
+    async handleRedirectCallback() {
+        const result = await this.client.handleRedirectCallback();
+        return result.appState;
     }
 }
 exports.Auth0Handler = Auth0Handler;
