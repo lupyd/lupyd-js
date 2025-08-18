@@ -120,6 +120,10 @@ class Auth0Handler {
     }
     async handleRedirectCallback() {
         const result = await this.client.handleRedirectCallback();
+        const user = await this.getUser();
+        if (user) {
+            this.onAuthStatusChangeCallback(user);
+        }
         return result.appState;
     }
 }
