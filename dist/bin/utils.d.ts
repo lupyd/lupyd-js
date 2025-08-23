@@ -1,5 +1,4 @@
 import base from "base-x";
-import { IconNode } from "lucide";
 import { File as PostFile } from "../protos/post";
 export interface PickedFileUrl {
     blobUrl: string;
@@ -53,7 +52,6 @@ export declare const ulidStringify: (ulid: Uint8Array) => string;
 export declare const ulidFromString: (s: string) => Uint8Array<ArrayBufferLike>;
 export declare const cacheBuster: (durationInSeconds: number) => number;
 export declare const tryCatchIfUndefine: <T>(f: () => T) => T | undefined;
-export declare function UiIcon(i: string | IconNode): HTMLSpanElement;
 export interface ResponseInit {
     status: number;
     statusText: string;

@@ -9,13 +9,9 @@ exports.isValidUsername = isValidUsername;
 exports.arrayBufferToString = arrayBufferToString;
 exports.base64DecodeURL = base64DecodeURL;
 exports.base64EncodeURL = base64EncodeURL;
-exports.UiIcon = UiIcon;
 const id128_1 = require("id128");
 const base_x_1 = __importDefault(require("base-x"));
 const constants_1 = require("../constants");
-const vanjs_core_1 = __importDefault(require("vanjs-core"));
-const lucide_1 = require("lucide");
-const icons_1 = require("./icons");
 const chars = "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_`abcdefghijklmnopqrstuvwxyz{|}~";
 const codeUnits = Array.from(new TextEncoder().encode(chars));
 function areListsEqual(a, b) {
@@ -352,54 +348,6 @@ const tryCatchIfUndefine = (f) => {
     }
 };
 exports.tryCatchIfUndefine = tryCatchIfUndefine;
-// export const isDarkMode = van.state(store.get("darkMode") ?? false);
-// van.derive(() => {
-//   (document.getElementById("icon")! as HTMLLinkElement).href = isDarkMode.val
-//     ? "/favicon-dark.svg"
-//     : "/favicon.svg";
-//   store.set("darkMode", isDarkMode.val);
-//   const LIGHTMODE: Record<string, string> = {
-//     "--primary-color": "white",
-//     "--opposite-color": "black",
-//     "--accent-color": "rgb(231, 231, 231)",
-//     "--selected-color": "rgb(67, 67, 67);",
-//     "--primary-accent-color": "rgb(245, 245, 245)",
-//   } as const;
-//   const DARKMODE: Record<string, string> = {
-//     "--primary-color": "black",
-//     "--opposite-color": "white",
-//     "--accent-color": "rgb(67, 67, 67)",
-//     "--selected-color": "rgb(67, 67, 67);",
-//     "--primary-accent-color": "rgb(10, 10, 10)",
-//   } as const;
-//   for (const [key, value] of Object.entries(
-//     isDarkMode.val ? DARKMODE : LIGHTMODE,
-//   )) {
-//     document.documentElement.style.setProperty(key, value);
-//   }
-//   console.log({ darkMode: isDarkMode.val });
-// });
-// export function ToggleDarkModeButton() {
-//   return button(
-//     {
-//       class: "theme-button",
-//       onclick: () => (isDarkMode.val = !isDarkMode.val),
-//     },
-//     () => (isDarkMode.val ? UiIcon("sun") : UiIcon("moon")),
-//   );
-// }
-function UiIcon(i) {
-    let icon;
-    let className = "";
-    if (typeof i == "string") {
-        icon = (0, icons_1.getIcon)(i);
-        className = `lucid-${i}`;
-    }
-    else {
-        icon = (0, lucide_1.createElement)(i);
-    }
-    return vanjs_core_1.default.tags.span({ class: className }, icon);
-}
 const fetchWithProgress = (url, method, headers = {}, body, onUploadProgress, onDownloadProgress) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = "arraybuffer";

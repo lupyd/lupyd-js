@@ -1,9 +1,6 @@
 import { Ulid } from "id128";
 import base from "base-x";
 import { rawUsernameRegex } from "../constants";
-import van from "vanjs-core";
-import { createElement, IconNode } from "lucide";
-import { getIcon } from "./icons";
 
 import { File as PostFile } from "../protos/post";
 
@@ -459,18 +456,6 @@ export const tryCatchIfUndefine = <T,>(f: () => T) => {
 //     () => (isDarkMode.val ? UiIcon("sun") : UiIcon("moon")),
 //   );
 // }
-
-export function UiIcon(i: string | IconNode) {
-  let icon: SVGElement;
-  let className = "";
-  if (typeof i == "string") {
-    icon = getIcon(i)!;
-    className = `lucid-${i}`;
-  } else {
-    icon = createElement(i as IconNode);
-  }
-  return van.tags.span({ class: className }, icon);
-}
 
 // export const windowSize = vanX.reactive({
 //   width: window.innerWidth,
