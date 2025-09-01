@@ -242,7 +242,7 @@ export async function updateUserRelation(username: string, relation: Relation) {
   const token = await getAuthHandler()?.getToken();
 
   const response = await fetch(
-    `${API_URL}/relation?user=${username}&relation=${relationToString(relation)}`,
+    `${API_URL}/relation?uname=${username}&relation=${relationToString(relation)}`,
     {
       method: "PUT",
       headers: { authorization: `Bearer ${token}` },
