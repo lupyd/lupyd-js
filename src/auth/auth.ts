@@ -29,6 +29,7 @@ export class Auth0Handler {
   }
 
   static async initialize(
+    domain: string,
     clientId: string,
     audience: string,
     redirectUrl: string,
@@ -42,7 +43,7 @@ export class Auth0Handler {
     }
 
     const client = await createAuth0Client({
-      domain: "auth.lupyd.com",
+      domain,
       clientId,
       authorizationParams: {
         audience: audience,

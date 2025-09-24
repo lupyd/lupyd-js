@@ -14,7 +14,7 @@ export declare class Auth0Handler {
     private client;
     private onAuthStatusChangeCallback;
     constructor(client: Auth0Client, onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void);
-    static initialize(clientId: string, audience: string, redirectUrl: string, onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void): Promise<Auth0Handler>;
+    static initialize(domain: string, clientId: string, audience: string, redirectUrl: string, onAuthStatusChangeCallback: (user: DecodedToken | undefined) => void): Promise<Auth0Handler>;
     login(appState: any): Promise<void>;
     getToken(forceReload?: boolean): Promise<string | undefined>;
     getUser(): Promise<DecodedToken | undefined>;

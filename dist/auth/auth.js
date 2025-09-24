@@ -12,14 +12,14 @@ class Auth0Handler {
         this.client = client;
         this.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
     }
-    static async initialize(clientId, audience, redirectUrl, onAuthStatusChangeCallback) {
+    static async initialize(domain, clientId, audience, redirectUrl, onAuthStatusChangeCallback) {
         if (instance) {
             console.error("Already initialized");
             // instance.onAuthStatusChangeCallback = onAuthStatusChangeCallback;
             return instance;
         }
         const client = await (0, auth0_spa_js_1.createAuth0Client)({
-            domain: "auth.lupyd.com",
+            domain,
             clientId,
             authorizationParams: {
                 audience: audience,

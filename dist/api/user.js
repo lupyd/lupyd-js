@@ -200,7 +200,7 @@ async function updateUserRelation(username, relation) {
         throw new Error("User haven't completed their sign in setup");
     }
     const token = await (0, auth_1.getAuthHandler)()?.getToken();
-    const response = await fetch(`${constants_1.API_URL}/relation?user=${username}&relation=${(0, exports.relationToString)(relation)}`, {
+    const response = await fetch(`${constants_1.API_URL}/relation?uname=${username}&relation=${(0, exports.relationToString)(relation)}`, {
         method: "PUT",
         headers: { authorization: `Bearer ${token}` },
     });
