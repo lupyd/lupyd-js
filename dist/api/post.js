@@ -273,7 +273,8 @@ const createPostWithFiles = async (createPostDetails, files, progressCallback) =
     const response = await (0, utils_1.fetchWithProgress)(url, "PUT", {
         Authorization: `Bearer ${token}`,
         "content-type": "application/octet-stream",
-    }, body, (sent, total) => progressCallback(total, sent), (recv, total) => { });
+    }, body, (sent, total) => { if (progressCallback)
+        progressCallback(total, sent); }, (recv, total) => { });
     // const response = await fetch(url, {
     //   method: "PUT",
     //   headers: {

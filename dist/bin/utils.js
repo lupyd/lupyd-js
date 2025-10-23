@@ -3,12 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dateToRelativeString = exports.sanitizeFilename = exports.fetchWithProgress = exports.tryCatchIfUndefine = exports.cacheBuster = exports.ulidFromString = exports.ulidStringify = exports._getTimeZoneOffsetInMs = exports.timestampToDatetimeInputString = exports.generateUlidAsBase77 = exports.getTimestampFromUlid = exports.generateUlid = exports.base32 = exports.base58 = exports.base77 = exports.setQueryParams = exports.random = exports.Random = exports.Utils = exports.base64UrlDecode = exports.launchDeepLink = void 0;
-exports.areListsEqual = areListsEqual;
-exports.isValidUsername = isValidUsername;
-exports.arrayBufferToString = arrayBufferToString;
-exports.base64DecodeURL = base64DecodeURL;
-exports.base64EncodeURL = base64EncodeURL;
+exports.dateToRelativeString = exports.sanitizeFilename = exports.fetchWithProgress = exports.tryCatchIfUndefine = exports.cacheBuster = exports.ulidFromString = exports.ulidStringify = exports._getTimeZoneOffsetInMs = exports.timestampToDatetimeInputString = exports.generateUlidAsBase77 = exports.getTimestampFromUlid = exports.generateUlid = exports.base32 = exports.base58 = exports.base77 = exports.setQueryParams = exports.random = exports.Random = exports.Utils = exports.base64EncodeURL = exports.base64DecodeURL = exports.base64UrlDecode = exports.arrayBufferToString = exports.isValidUsername = exports.launchDeepLink = exports.areListsEqual = void 0;
 const id128_1 = require("id128");
 const base_x_1 = __importDefault(require("base-x"));
 const constants_1 = require("../constants");
@@ -26,6 +21,7 @@ function areListsEqual(a, b) {
     }
     return true;
 }
+exports.areListsEqual = areListsEqual;
 const launchDeepLink = (src) => {
     const iframe = document.createElement("iframe");
     iframe.src = src;
@@ -37,6 +33,7 @@ function isValidUsername(uname) {
     const matches = uname.match(new RegExp(constants_1.rawUsernameRegex));
     return matches != null && matches.length === 1 && matches[0] === uname;
 }
+exports.isValidUsername = isValidUsername;
 function arrayBufferToString(buffer) {
     try {
         return new TextDecoder().decode(buffer);
@@ -45,6 +42,7 @@ function arrayBufferToString(buffer) {
         return `ERROR DECODING: ${err}`;
     }
 }
+exports.arrayBufferToString = arrayBufferToString;
 const base64UrlDecode = (input) => {
     // Replace non-url compatible chars with base64 standard chars
     input = input.replace(/-/g, "+").replace(/_/g, "/");
@@ -66,6 +64,7 @@ function base64DecodeURL(b64urlstring) {
         return val.charCodeAt(0);
     }));
 }
+exports.base64DecodeURL = base64DecodeURL;
 function base64EncodeURL(byteArray) {
     return btoa(Array.from(byteArray)
         .map((val) => {
@@ -76,6 +75,7 @@ function base64EncodeURL(byteArray) {
         .replace(/\//g, "_")
         .replace(/\=/g, "");
 }
+exports.base64EncodeURL = base64EncodeURL;
 var Utils;
 (function (Utils) {
     Utils.shareUrl = (url) => {

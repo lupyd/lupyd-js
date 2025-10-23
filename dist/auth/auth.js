@@ -118,8 +118,8 @@ class Auth0Handler {
             throw new Error(`[${response.status}] ${await response.text()}`);
         }
     }
-    async handleRedirectCallback() {
-        const result = await this.client.handleRedirectCallback();
+    async handleRedirectCallback(url) {
+        const result = await this.client.handleRedirectCallback(url);
         const user = await this.getUser();
         if (user) {
             this.onAuthStatusChangeCallback(user);

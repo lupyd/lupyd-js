@@ -5,11 +5,7 @@
 //   protoc               v6.31.1
 // source: lupyd-md.proto
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Markdown = exports.Elements = exports.Element = exports.PrimitiveElement = exports.FileElement = exports.HyperElement = exports.HyperCustomElement = exports.HyperElementType = exports.ElementType = exports.protobufPackage = void 0;
-exports.elementTypeFromJSON = elementTypeFromJSON;
-exports.elementTypeToJSON = elementTypeToJSON;
-exports.hyperElementTypeFromJSON = hyperElementTypeFromJSON;
-exports.hyperElementTypeToJSON = hyperElementTypeToJSON;
+exports.Markdown = exports.Elements = exports.Element = exports.PrimitiveElement = exports.FileElement = exports.HyperElement = exports.HyperCustomElement = exports.hyperElementTypeToJSON = exports.hyperElementTypeFromJSON = exports.HyperElementType = exports.elementTypeToJSON = exports.elementTypeFromJSON = exports.ElementType = exports.protobufPackage = void 0;
 /* eslint-disable */
 const wire_1 = require("@bufbuild/protobuf/wire");
 exports.protobufPackage = "lupyd.markdown";
@@ -57,6 +53,7 @@ function elementTypeFromJSON(object) {
             return ElementType.UNRECOGNIZED;
     }
 }
+exports.elementTypeFromJSON = elementTypeFromJSON;
 function elementTypeToJSON(object) {
     switch (object) {
         case ElementType.Normal:
@@ -80,6 +77,7 @@ function elementTypeToJSON(object) {
             return "UNRECOGNIZED";
     }
 }
+exports.elementTypeToJSON = elementTypeToJSON;
 var HyperElementType;
 (function (HyperElementType) {
     HyperElementType[HyperElementType["Mention"] = 0] = "Mention";
@@ -112,6 +110,7 @@ function hyperElementTypeFromJSON(object) {
             return HyperElementType.UNRECOGNIZED;
     }
 }
+exports.hyperElementTypeFromJSON = hyperElementTypeFromJSON;
 function hyperElementTypeToJSON(object) {
     switch (object) {
         case HyperElementType.Mention:
@@ -129,6 +128,7 @@ function hyperElementTypeToJSON(object) {
             return "UNRECOGNIZED";
     }
 }
+exports.hyperElementTypeToJSON = hyperElementTypeToJSON;
 function createBaseHyperCustomElement() {
     return { tag: "", body: "" };
 }

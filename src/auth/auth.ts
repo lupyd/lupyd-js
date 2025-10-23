@@ -164,8 +164,8 @@ export class Auth0Handler {
     }
   }
 
-  async handleRedirectCallback() {
-    const result = await this.client.handleRedirectCallback();
+  async handleRedirectCallback(url? : string) {
+    const result = await this.client.handleRedirectCallback(url);
 
     const user = await this.getUser();
     if (user) {

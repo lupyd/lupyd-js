@@ -22,6 +22,6 @@ export declare class Auth0Handler {
     deleteAccount(): Promise<void>;
     logout(): Promise<void>;
     assignUsername(username: string): Promise<void>;
-    handleRedirectCallback(): Promise<any>;
+    handleRedirectCallback(url?: string): Promise<any>;
 }
 export declare const getAuthHandler: () => Auth0Handler | undefined;

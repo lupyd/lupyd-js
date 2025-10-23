@@ -344,7 +344,7 @@ export const createPostWithFiles = async (
       "content-type": "application/octet-stream",
     },
     body,
-    (sent, total) => progressCallback(total, sent),
+    (sent, total) => {if (progressCallback) progressCallback(total, sent)},
     (recv, total) => {},
   );
 

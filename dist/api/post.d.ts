@@ -22,7 +22,7 @@ export declare const getPosts: (getPostDetails: GetPostsData) => Promise<FullPos
 export declare const putVote: (vote: Vote) => Promise<void>;
 export declare const putVotes: (votes: Vote[]) => Promise<void>;
 export declare const createPost: (createPostDetails: CreatePostDetails) => Promise<FullPost | undefined>;
-export declare const createPostWithFiles: (createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: (totalBytes: number, bytesSent: number) => void) => Promise<FullPost | undefined>;
+export declare const createPostWithFiles: (createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: ((totalBytes: number, bytesSent: number) => void) | undefined) => Promise<FullPost | undefined>;
 export declare const reportPost: (id: Uint8Array, text: string) => Promise<void>;
 export declare const deletePost: (id: Uint8Array) => Promise<void>;
 export declare const getTrendingHashtags: () => Promise<PostProtos.PostHashtags>;
