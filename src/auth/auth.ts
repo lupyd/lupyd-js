@@ -67,7 +67,7 @@ export class Auth0Handler {
     return handler;
   }
 
-  async login(appState: any) {
+  async login(appState: any, _openUrl? : ((url: string) => Promise<void> | void)) {
     if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE === "true") {
       await this.client.loginWithPopup(undefined, {
         timeoutInSeconds: 60 * 10,
@@ -75,7 +75,11 @@ export class Auth0Handler {
     } else {
       await this.client.loginWithRedirect({
         appState,
-        openUrl(url) {
+        openUrl(url) { 
+          if (_openUrl) {
+            _openUrl(url);
+            return;
+          }
           window.open(url);
         },
       });
