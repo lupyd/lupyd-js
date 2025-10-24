@@ -1,15 +1,5 @@
 import { Auth0Client } from "@auth0/auth0-spa-js";
-export interface DecodedToken {
-    uname: string | undefined;
-    perms: number | undefined;
-    iss: string;
-    aud: string[];
-    iat: number;
-    exp: number;
-    jtl: string;
-    client_id: string;
-    sub: string;
-}
+import { DecodedToken } from "../api/api";
 export declare class Auth0Handler {
     private client;
     private onAuthStatusChangeCallback;
