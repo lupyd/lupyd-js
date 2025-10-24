@@ -72,7 +72,7 @@ class ApiService {
         return (0, post_1.getTrendingHashtags)(this.baseUrl);
     }
     async getNotifications() {
-        (0, post_1.getNotifications)(this.baseUrl, await this.getToken());
+        return (0, post_1.getNotifications)(this.baseUrl, await this.getToken());
     }
     async getUsers(username) {
         return (0, user_1.getUsers)(this.baseUrl, username, await undefinedOnfail(this.getToken()));
@@ -91,6 +91,18 @@ class ApiService {
     }
     async deleteUserProfilePicture() {
         return (0, user_1.deleteUserProfilePicture)(this.apiCdnUrl, await this.getToken());
+    }
+    async deleteUser() {
+        const token = await this.getToken();
+        const response = await fetch(`${this.baseUrl}/user`, {
+            method: "DELETE",
+            headers: {
+                authorization: `Bearer ${token}`,
+            },
+        });
+        if (response.status != 200) {
+            throw new Error(`Received unexpected status code ${response.status} ${await response.text()}`);
+        }
     }
 }
 exports.ApiService = ApiService;

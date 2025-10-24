@@ -28,11 +28,12 @@ export declare class ApiService {
     reportPost(id: Uint8Array, text: string): Promise<void>;
     deletePost(id: Uint8Array): Promise<void>;
     getTrendingHashtags(): Promise<import("../protos/post").PostHashtags>;
-    getNotifications(): Promise<void>;
+    getNotifications(): Promise<import("../protos/notification").Notifications>;
     getUsers(username: string): Promise<import("../protos/user").User[]>;
     getUser(username: string): Promise<import("../protos/user").User | undefined>;
     getUsersByUsername(usernames: string[]): Promise<import("../protos/user").User[]>;
     updateUser(info: UpdateUserInfo): Promise<void>;
     updateUserProfilePicture(blob: Blob): Promise<void>;
     deleteUserProfilePicture(): Promise<void>;
+    deleteUser(): Promise<void>;
 }
