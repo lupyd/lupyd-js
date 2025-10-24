@@ -1,8 +1,8 @@
 import { UserProtos } from "..";
 import { isValidUsername } from "../bin/utils";
+import { throwStatusError } from "../error";
 import { UpdateUserInfo, User, Users } from "../protos/user";
 import { usernameExistsInToken } from "./api";
-// import { API_CDN_URL, API_URL } from "./../constants";
 
 export const getUsers = async (
   apiUrl: string,
@@ -23,7 +23,7 @@ export const getUsers = async (
     return Users.decode(new Uint8Array(body)).users;
   }
 
-  return users;
+  throwStatusError(response.status, await response.text());
 };
 
 export const getUser = async (
@@ -42,6 +42,8 @@ export const getUser = async (
     const body = await response.arrayBuffer();
     return User.decode(new Uint8Array(body));
   }
+
+  throwStatusError(response.status, await response.text());
 };
 
 export const getUsersByUsername = async (
@@ -65,8 +67,7 @@ export const getUsersByUsername = async (
     const body = await response.arrayBuffer();
     return Users.decode(new Uint8Array(body)).users;
   }
-
-  return users;
+  throwStatusError(response.status, await response.text());
 };
 
 export const updateUser = async (
@@ -87,11 +88,10 @@ export const updateUser = async (
     },
   });
 
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
 export const updateUserProfilePicture = async (
@@ -110,11 +110,10 @@ export const updateUserProfilePicture = async (
       authorization: `Bearer ${token}`,
     },
   });
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user profile ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
 export const deleteUserProfilePicture = async (
@@ -131,11 +130,10 @@ export const deleteUserProfilePicture = async (
       authorization: `Bearer ${token}`,
     },
   });
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user profile ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
 enum Relation {
@@ -266,15 +264,13 @@ export async function getUserRelations(apiUrl: string, token?: string) {
     },
   });
 
-  if (response.status != 200) {
-    throw new Error(
-      `received invalid status ${response.status}, text: ${await response.text()}`,
+  if (response.status == 200) {
+    return UserProtos.Relations.decode(
+      new Uint8Array(await response.arrayBuffer()),
     );
   }
 
-  return UserProtos.Relations.decode(
-    new Uint8Array(await response.arrayBuffer()),
-  );
+  throwStatusError(response.status, await response.text());
 }
 
 export async function updateUserRelation(
@@ -296,6 +292,8 @@ export async function updateUserRelation(
   );
 
   if (response.status !== 200) {
-    throw new Error(await response.text());
+    return;
   }
+
+  throwStatusError(response.status, await response.text());
 }

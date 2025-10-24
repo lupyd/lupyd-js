@@ -5,9 +5,9 @@ exports.getUserRelations = getUserRelations;
 exports.updateUserRelation = updateUserRelation;
 const __1 = require("..");
 const utils_1 = require("../bin/utils");
+const error_1 = require("../error");
 const user_1 = require("../protos/user");
 const api_1 = require("./api");
-// import { API_CDN_URL, API_URL } from "./../constants";
 const getUsers = async (apiUrl, username, token) => {
     const users = [];
     if (username.length <= 1) {
@@ -21,7 +21,7 @@ const getUsers = async (apiUrl, username, token) => {
         const body = await response.arrayBuffer();
         return user_1.Users.decode(new Uint8Array(body)).users;
     }
-    return users;
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getUsers = getUsers;
 const getUser = async (apiUrl, username, token) => {
@@ -35,6 +35,7 @@ const getUser = async (apiUrl, username, token) => {
         const body = await response.arrayBuffer();
         return user_1.User.decode(new Uint8Array(body));
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getUser = getUser;
 const getUsersByUsername = async (apiUrl, usernames, token) => {
@@ -50,7 +51,7 @@ const getUsersByUsername = async (apiUrl, usernames, token) => {
         const body = await response.arrayBuffer();
         return user_1.Users.decode(new Uint8Array(body)).users;
     }
-    return users;
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getUsersByUsername = getUsersByUsername;
 const updateUser = async (apiUrl, info, token) => {
@@ -65,9 +66,10 @@ const updateUser = async (apiUrl, info, token) => {
             authorization: `Bearer ${token}`,
         },
     });
-    if (response.status !== 200) {
-        console.error(`Failed to update user ${response.status} ${await response.text()}`);
+    if (response.status === 200) {
+        return;
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.updateUser = updateUser;
 const updateUserProfilePicture = async (apiCdnUrl, blob, token) => {
@@ -81,9 +83,10 @@ const updateUserProfilePicture = async (apiCdnUrl, blob, token) => {
             authorization: `Bearer ${token}`,
         },
     });
-    if (response.status !== 200) {
-        console.error(`Failed to update user profile ${response.status} ${await response.text()}`);
+    if (response.status === 200) {
+        return;
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.updateUserProfilePicture = updateUserProfilePicture;
 const deleteUserProfilePicture = async (apiCdnUrl, token) => {
@@ -96,9 +99,10 @@ const deleteUserProfilePicture = async (apiCdnUrl, token) => {
             authorization: `Bearer ${token}`,
         },
     });
-    if (response.status !== 200) {
-        console.error(`Failed to update user profile ${response.status} ${await response.text()}`);
+    if (response.status === 200) {
+        return;
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.deleteUserProfilePicture = deleteUserProfilePicture;
 var Relation;
@@ -187,10 +191,10 @@ async function getUserRelations(apiUrl, token) {
             authorization: `Bearer ${token}`,
         },
     });
-    if (response.status != 200) {
-        throw new Error(`received invalid status ${response.status}, text: ${await response.text()}`);
+    if (response.status == 200) {
+        return __1.UserProtos.Relations.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    return __1.UserProtos.Relations.decode(new Uint8Array(await response.arrayBuffer()));
+    (0, error_1.throwStatusError)(response.status, await response.text());
 }
 async function updateUserRelation(apiUrl, username, relation, token) {
     if (!token || !(0, api_1.usernameExistsInToken)(token)) {
@@ -201,6 +205,7 @@ async function updateUserRelation(apiUrl, username, relation, token) {
         headers: { authorization: `Bearer ${token}` },
     });
     if (response.status !== 200) {
-        throw new Error(await response.text());
+        return;
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 }

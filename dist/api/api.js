@@ -3,8 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiService = void 0;
 exports.usernameExistsInToken = usernameExistsInToken;
 exports.getPayloadFromAccessToken = getPayloadFromAccessToken;
+const utils_1 = require("../bin/utils");
+const error_1 = require("../error");
+const user_1 = require("../protos/user");
 const post_1 = require("./post");
-const user_1 = require("./user");
+const user_2 = require("./user");
 function usernameExistsInToken(token) {
     try {
         const decodedToken = getPayloadFromAccessToken(token);
@@ -32,29 +35,29 @@ class ApiService {
     getToken = () => {
         throw new Error("getToken is not given");
     };
-    baseUrl;
+    apiUrl;
     apiCdnUrl;
-    constructor(baseUrl, apiCdnUrl, getToken) {
-        this.baseUrl = baseUrl;
+    constructor(apiUrl, apiCdnUrl, getToken) {
+        this.apiUrl = apiUrl;
         this.getToken = getToken;
         this.apiCdnUrl = apiCdnUrl;
     }
     async getPost(id) {
-        return (0, post_1.getPost)(this.baseUrl, id, await undefinedOnfail(this.getToken()));
+        return (0, post_1.getPost)(this.apiUrl, id, await undefinedOnfail(this.getToken()));
     }
     async getPosts(getPostDetails) {
-        return (0, post_1.getPosts)(this.baseUrl, getPostDetails, await undefinedOnfail(this.getToken()));
+        return (0, post_1.getPosts)(this.apiUrl, getPostDetails, await undefinedOnfail(this.getToken()));
     }
     putVote(vote) {
         return this.putVotes([vote]);
     }
     async putVotes(votes) {
         const token = await this.getToken();
-        return (0, post_1.putVotes)(this.baseUrl, votes, token);
+        return (0, post_1.putVotes)(this.apiUrl, votes, token);
     }
     async createPost(createPostDetails) {
         const token = await this.getToken();
-        return (0, post_1.createPost)(this.baseUrl, createPostDetails, token);
+        return (0, post_1.createPost)(this.apiUrl, createPostDetails, token);
     }
     async createPostWithFiles(createPostDetails, files, progressCallback) {
         const token = await this.getToken();
@@ -62,47 +65,71 @@ class ApiService {
     }
     async reportPost(id, text) {
         const token = await this.getToken();
-        return (0, post_1.reportPost)(this.baseUrl, id, text, token);
+        return (0, post_1.reportPost)(this.apiUrl, id, text, token);
     }
     async deletePost(id) {
         const token = await this.getToken();
-        return (0, post_1.deletePost)(this.baseUrl, id, token);
+        return (0, post_1.deletePost)(this.apiUrl, id, token);
     }
     async getTrendingHashtags() {
-        return (0, post_1.getTrendingHashtags)(this.baseUrl);
+        return (0, post_1.getTrendingHashtags)(this.apiUrl);
     }
     async getNotifications() {
-        return (0, post_1.getNotifications)(this.baseUrl, await this.getToken());
+        return (0, post_1.getNotifications)(this.apiUrl, await this.getToken());
     }
     async getUsers(username) {
-        return (0, user_1.getUsers)(this.baseUrl, username, await undefinedOnfail(this.getToken()));
+        return (0, user_2.getUsers)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
     }
     async getUser(username) {
-        return (0, user_1.getUser)(this.baseUrl, username, await undefinedOnfail(this.getToken()));
+        return (0, user_2.getUser)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
     }
     async getUsersByUsername(usernames) {
-        return (0, user_1.getUsersByUsername)(this.baseUrl, usernames, await undefinedOnfail(this.getToken()));
+        return (0, user_2.getUsersByUsername)(this.apiUrl, usernames, await undefinedOnfail(this.getToken()));
     }
     async updateUser(info) {
-        return (0, user_1.updateUser)(this.baseUrl, info, await this.getToken());
+        return (0, user_2.updateUser)(this.apiUrl, info, await this.getToken());
     }
     async updateUserProfilePicture(blob) {
-        return (0, user_1.updateUserProfilePicture)(this.apiCdnUrl, blob, await this.getToken());
+        return (0, user_2.updateUserProfilePicture)(this.apiCdnUrl, blob, await this.getToken());
     }
     async deleteUserProfilePicture() {
-        return (0, user_1.deleteUserProfilePicture)(this.apiCdnUrl, await this.getToken());
+        return (0, user_2.deleteUserProfilePicture)(this.apiCdnUrl, await this.getToken());
     }
     async deleteUser() {
         const token = await this.getToken();
-        const response = await fetch(`${this.baseUrl}/user`, {
+        if (!usernameExistsInToken(token)) {
+            throw Error("User is not signed in full");
+        }
+        const response = await fetch(`${this.apiUrl}/user`, {
             method: "DELETE",
             headers: {
                 authorization: `Bearer ${token}`,
             },
         });
-        if (response.status != 200) {
-            throw new Error(`Received unexpected status code ${response.status} ${await response.text()}`);
+        if (response.status == 200) {
+            return;
         }
+        (0, error_1.throwStatusError)(response.status, await response.text());
+    }
+    async assignUsername(username) {
+        if (!(0, utils_1.isValidUsername)(username)) {
+            throw new Error("Not a valid username");
+        }
+        const token = await this.getToken();
+        if (usernameExistsInToken(token)) {
+            throw Error("Username already assigned");
+        }
+        const response = await fetch(`${this.apiUrl}/user`, {
+            method: "POST",
+            headers: {
+                authorization: `Bearer ${await this.getToken()}`,
+            },
+            body: new Uint8Array(user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish()),
+        });
+        if (response.status == 200 || response.status == 201) {
+            return;
+        }
+        (0, error_1.throwStatusError)(response.status, await response.text());
     }
 }
 exports.ApiService = ApiService;

@@ -19,6 +19,7 @@ import {
 import { PostProtos } from "..";
 import { Notifications } from "../protos/notification";
 import { usernameExistsInToken } from "./api";
+import { throwStatusError } from "../error";
 
 export const getPost = async (apiUrl: string, id: string, token?: string) => {
   const url = `${apiUrl}/post/${id}`;
@@ -32,9 +33,9 @@ export const getPost = async (apiUrl: string, id: string, token?: string) => {
 
   if (response.status === 200) {
     return FullPost.decode(new Uint8Array(await response.arrayBuffer()));
-  } else {
-    console.error(`${url} [${response.status}] ${await response.text()}`);
   }
+
+  throwStatusError(response.status, await response.text());
 };
 
 export enum FetchType {
@@ -147,30 +148,22 @@ export const getPosts = async (
   getPostDetails: GetPostsData,
   token?: string,
 ) => {
-  try {
-    const url = new URL(`${apiUrl}/post`, window.location.origin);
-    parseGetPostsData(getPostDetails).forEach((value, key) =>
-      url.searchParams.append(key, value),
-    );
-    const response = await fetch(url, {
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
+  const url = new URL(`${apiUrl}/post`, window.location.origin);
+  parseGetPostsData(getPostDetails).forEach((value, key) =>
+    url.searchParams.append(key, value),
+  );
+  const response = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
 
-    console.log({ url: url.toString() });
-    if (response.status === 200) {
-      const posts = FullPosts.decode(
-        new Uint8Array(await response.arrayBuffer()),
-      ).posts;
+  if (response.status === 200) {
+    const posts = FullPosts.decode(
+      new Uint8Array(await response.arrayBuffer()),
+    ).posts;
 
-      return posts;
-    } else {
-      console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
-  } catch (err) {
-    console.error(err);
+    return posts;
   }
-
-  return [];
+  throwStatusError(response.status, await response.text());
 };
 
 // class VotesRequestBatcher {
@@ -220,28 +213,23 @@ export const putVotes = async (
   votes: Vote[],
   token?: string,
 ) => {
-  try {
-    const url = `${apiUrl}/vote`;
-    if (!token || usernameExistsInToken(token)) {
-      throw new Error(`User not authenticated`);
-    }
-    const body = new Uint8Array(Votes.encode(Votes.create({ votes })).finish());
-    const response = await fetch(url, {
-      method: "PUT",
-      body,
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.status === 200) {
-      console.log(`Successfully voted`);
-    } else {
-      console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
-  } catch (err) {
-    console.error(err);
+  const url = `${apiUrl}/vote`;
+  if (!token || usernameExistsInToken(token)) {
+    throw new Error(`User not authenticated`);
   }
+  const body = new Uint8Array(Votes.encode(Votes.create({ votes })).finish());
+  const response = await fetch(url, {
+    method: "PUT",
+    body,
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 200) {
+    return;
+  }
+  throwStatusError(response.status, await response.text());
 };
 
 export const createPost = async (
@@ -252,7 +240,6 @@ export const createPost = async (
   const url = `${apiUrl}/post`;
   if (!token || usernameExistsInToken(token))
     throw new Error("User Not Authenticated");
-  console.log({ createPostDetails });
   const response = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
@@ -275,9 +262,9 @@ export const createPost = async (
     });
 
     return post;
-  } else {
-    console.error(`${url} [${response.status}] ${await response.text()}`);
   }
+
+  throwStatusError(response.status, await response.text());
 };
 
 const makeCreatePostWithFilesBlob = async (
@@ -365,11 +352,9 @@ export const createPostWithFiles = async (
   // }
   if (response.status === 200) {
     return FullPost.decode(response.body);
-  } else {
-    console.error(
-      `${url} [${response.status}] ${new TextDecoder().decode(response.body)}`,
-    );
   }
+
+  throwStatusError(response.status, new TextDecoder().decode(response.body));
 };
 
 export const reportPost = async (
@@ -392,10 +377,10 @@ export const reportPost = async (
   });
 
   if (response.status === 200) {
-    console.log(`Successfully submitted report`);
-  } else {
-    console.error(`${url} [${response.status}] ${await response.text()}`);
+    return;
   }
+
+  throwStatusError(response.status, await response.text());
 };
 
 export const deletePost = async (
@@ -416,22 +401,23 @@ export const deletePost = async (
     },
   });
 
-  console.log(
-    `DELETE ${url} status: ${response.status} ${await response.text()}`,
-  );
+  if (response.status === 200) {
+    return;
+  }
+
+  throwStatusError(response.status, await response.text());
 };
 
 export const getTrendingHashtags = async (apiUrl: string) => {
   const url = `${apiUrl}/hashtags`;
   const response = await fetch(url);
   if (response.status != 200) {
-    throw new Error(
-      `unexpected status code: ${response.status}, body: ${await response.text()}`,
+    return PostProtos.PostHashtags.decode(
+      new Uint8Array(await response.arrayBuffer()),
     );
   }
-  return PostProtos.PostHashtags.decode(
-    new Uint8Array(await response.arrayBuffer()),
-  );
+
+  throwStatusError(response.status, await response.text());
 };
 
 export const getNotifications = async (apiUrl: string, token?: string) => {
@@ -447,9 +433,7 @@ export const getNotifications = async (apiUrl: string, token?: string) => {
 
   if (response.status == 200) {
     return Notifications.decode(new Uint8Array(await response.arrayBuffer()));
-  } else {
-    throw new Error(
-      `Received unexpected status: ${response.status} ${await response.text()}`,
-    );
   }
+
+  throwStatusError(response.status, await response.text());
 };

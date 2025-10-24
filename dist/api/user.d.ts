@@ -1,7 +1,7 @@
 import { UserProtos } from "..";
 import { UpdateUserInfo } from "../protos/user";
 export declare const getUsers: (apiUrl: string, username: string, token?: string) => Promise<UserProtos.User[]>;
-export declare const getUser: (apiUrl: string, username: string, token?: string) => Promise<UserProtos.User | undefined>;
+export declare const getUser: (apiUrl: string, username: string, token?: string) => Promise<UserProtos.User>;
 export declare const getUsersByUsername: (apiUrl: string, usernames: string[], token?: string) => Promise<UserProtos.User[]>;
 export declare const updateUser: (apiUrl: string, info: UpdateUserInfo, token?: string) => Promise<void>;
 export declare const updateUserProfilePicture: (apiCdnUrl: string, blob: Blob, token?: string) => Promise<void>;

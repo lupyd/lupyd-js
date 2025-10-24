@@ -1,7 +1,7 @@
 import { CreatePostDetails, CreatePostWithFiles, FullPost, Vote } from "../protos/post";
 import { PostProtos } from "..";
 import { Notifications } from "../protos/notification";
-export declare const getPost: (apiUrl: string, id: string, token?: string) => Promise<FullPost | undefined>;
+export declare const getPost: (apiUrl: string, id: string, token?: string) => Promise<FullPost>;
 export declare enum FetchType {
     Latest = 0,
     Users = 1,
@@ -20,8 +20,8 @@ export interface GetPostsData {
 }
 export declare const getPosts: (apiUrl: string, getPostDetails: GetPostsData, token?: string) => Promise<FullPost[]>;
 export declare const putVotes: (apiUrl: string, votes: Vote[], token?: string) => Promise<void>;
-export declare const createPost: (apiUrl: string, createPostDetails: CreatePostDetails, token?: string) => Promise<FullPost | undefined>;
-export declare const createPostWithFiles: (apiCdnUrl: string, createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: (totalBytes: number, bytesSent: number) => void, token?: string) => Promise<FullPost | undefined>;
+export declare const createPost: (apiUrl: string, createPostDetails: CreatePostDetails, token?: string) => Promise<FullPost>;
+export declare const createPostWithFiles: (apiCdnUrl: string, createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: (totalBytes: number, bytesSent: number) => void, token?: string) => Promise<FullPost>;
 export declare const reportPost: (apiUrl: string, id: Uint8Array, text: string, token?: string) => Promise<void>;
 export declare const deletePost: (apiUrl: string, id: Uint8Array, token?: string) => Promise<void>;
 export declare const getTrendingHashtags: (apiUrl: string) => Promise<PostProtos.PostHashtags>;

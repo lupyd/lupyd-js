@@ -7,6 +7,7 @@ const utils_1 = require("../bin/utils");
 const __1 = require("..");
 const notification_1 = require("../protos/notification");
 const api_1 = require("./api");
+const error_1 = require("../error");
 const getPost = async (apiUrl, id, token) => {
     const url = `${apiUrl}/post/${id}`;
     const response = await fetch(url, {
@@ -19,9 +20,7 @@ const getPost = async (apiUrl, id, token) => {
     if (response.status === 200) {
         return post_1.FullPost.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getPost = getPost;
 var FetchType;
@@ -111,25 +110,16 @@ const parseGetPostsData = (details) => {
     return searchParams;
 };
 const getPosts = async (apiUrl, getPostDetails, token) => {
-    try {
-        const url = new URL(`${apiUrl}/post`, window.location.origin);
-        parseGetPostsData(getPostDetails).forEach((value, key) => url.searchParams.append(key, value));
-        const response = await fetch(url, {
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
-        console.log({ url: url.toString() });
-        if (response.status === 200) {
-            const posts = post_1.FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
-            return posts;
-        }
-        else {
-            console.error(`${url} [${response.status}] ${await response.text()}`);
-        }
+    const url = new URL(`${apiUrl}/post`, window.location.origin);
+    parseGetPostsData(getPostDetails).forEach((value, key) => url.searchParams.append(key, value));
+    const response = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (response.status === 200) {
+        const posts = post_1.FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
+        return posts;
     }
-    catch (err) {
-        console.error(err);
-    }
-    return [];
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getPosts = getPosts;
 // class VotesRequestBatcher {
@@ -169,36 +159,28 @@ exports.getPosts = getPosts;
 //   return putVotes([vote]);
 // };
 const putVotes = async (apiUrl, votes, token) => {
-    try {
-        const url = `${apiUrl}/vote`;
-        if (!token || (0, api_1.usernameExistsInToken)(token)) {
-            throw new Error(`User not authenticated`);
-        }
-        const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
-        const response = await fetch(url, {
-            method: "PUT",
-            body,
-            headers: {
-                authorization: `Bearer ${token}`,
-            },
-        });
-        if (response.status === 200) {
-            console.log(`Successfully voted`);
-        }
-        else {
-            console.error(`${url} [${response.status}] ${await response.text()}`);
-        }
+    const url = `${apiUrl}/vote`;
+    if (!token || (0, api_1.usernameExistsInToken)(token)) {
+        throw new Error(`User not authenticated`);
     }
-    catch (err) {
-        console.error(err);
+    const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
+    const response = await fetch(url, {
+        method: "PUT",
+        body,
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    });
+    if (response.status === 200) {
+        return;
     }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.putVotes = putVotes;
 const createPost = async (apiUrl, createPostDetails, token) => {
     const url = `${apiUrl}/post`;
     if (!token || (0, api_1.usernameExistsInToken)(token))
         throw new Error("User Not Authenticated");
-    console.log({ createPostDetails });
     const response = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -219,9 +201,7 @@ const createPost = async (apiUrl, createPostDetails, token) => {
         });
         return post;
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.createPost = createPost;
 const makeCreatePostWithFilesBlob = async (details, files) => {
@@ -280,9 +260,7 @@ const createPostWithFiles = async (apiCdnUrl, createPostDetails, files, progress
     if (response.status === 200) {
         return post_1.FullPost.decode(response.body);
     }
-    else {
-        console.error(`${url} [${response.status}] ${new TextDecoder().decode(response.body)}`);
-    }
+    (0, error_1.throwStatusError)(response.status, new TextDecoder().decode(response.body));
 };
 exports.createPostWithFiles = createPostWithFiles;
 const reportPost = async (apiUrl, id, text, token) => {
@@ -296,11 +274,9 @@ const reportPost = async (apiUrl, id, text, token) => {
         body,
     });
     if (response.status === 200) {
-        console.log(`Successfully submitted report`);
+        return;
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.reportPost = reportPost;
 const deletePost = async (apiUrl, id, token) => {
@@ -314,16 +290,19 @@ const deletePost = async (apiUrl, id, token) => {
             Authorization: `Bearer ${token}`,
         },
     });
-    console.log(`DELETE ${url} status: ${response.status} ${await response.text()}`);
+    if (response.status === 200) {
+        return;
+    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.deletePost = deletePost;
 const getTrendingHashtags = async (apiUrl) => {
     const url = `${apiUrl}/hashtags`;
     const response = await fetch(url);
     if (response.status != 200) {
-        throw new Error(`unexpected status code: ${response.status}, body: ${await response.text()}`);
+        return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getTrendingHashtags = getTrendingHashtags;
 const getNotifications = async (apiUrl, token) => {
@@ -339,8 +318,6 @@ const getNotifications = async (apiUrl, token) => {
     if (response.status == 200) {
         return notification_1.Notifications.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    else {
-        throw new Error(`Received unexpected status: ${response.status} ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getNotifications = getNotifications;

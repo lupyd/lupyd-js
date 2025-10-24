@@ -1,5 +1,7 @@
+import { isValidUsername } from "../bin/utils";
+import { throwStatusError } from "../error";
 import { CreatePostDetails, CreatePostWithFiles, Vote } from "../protos/post";
-import { UpdateUserInfo } from "../protos/user";
+import { FullUser, UpdateUserInfo } from "../protos/user";
 import {
   createPost,
   createPostWithFiles,
@@ -62,24 +64,24 @@ export class ApiService {
     throw new Error("getToken is not given");
   };
 
-  private readonly baseUrl: string;
+  private readonly apiUrl: string;
   private readonly apiCdnUrl: string;
 
   constructor(
-    baseUrl: string,
+    apiUrl: string,
     apiCdnUrl: string,
     getToken: () => Promise<string>,
   ) {
-    this.baseUrl = baseUrl;
+    this.apiUrl = apiUrl;
     this.getToken = getToken;
     this.apiCdnUrl = apiCdnUrl;
   }
   async getPost(id: string) {
-    return getPost(this.baseUrl, id, await undefinedOnfail(this.getToken()));
+    return getPost(this.apiUrl, id, await undefinedOnfail(this.getToken()));
   }
   async getPosts(getPostDetails: GetPostsData) {
     return getPosts(
-      this.baseUrl,
+      this.apiUrl,
       getPostDetails,
       await undefinedOnfail(this.getToken()),
     );
@@ -89,11 +91,11 @@ export class ApiService {
   }
   async putVotes(votes: Vote[]) {
     const token = await this.getToken();
-    return putVotes(this.baseUrl, votes, token);
+    return putVotes(this.apiUrl, votes, token);
   }
   async createPost(createPostDetails: CreatePostDetails) {
     const token = await this.getToken();
-    return createPost(this.baseUrl, createPostDetails, token);
+    return createPost(this.apiUrl, createPostDetails, token);
   }
   async createPostWithFiles(
     createPostDetails: CreatePostWithFiles,
@@ -111,42 +113,42 @@ export class ApiService {
   }
   async reportPost(id: Uint8Array, text: string) {
     const token = await this.getToken();
-    return reportPost(this.baseUrl, id, text, token);
+    return reportPost(this.apiUrl, id, text, token);
   }
   async deletePost(id: Uint8Array) {
     const token = await this.getToken();
-    return deletePost(this.baseUrl, id, token);
+    return deletePost(this.apiUrl, id, token);
   }
   async getTrendingHashtags() {
-    return getTrendingHashtags(this.baseUrl);
+    return getTrendingHashtags(this.apiUrl);
   }
   async getNotifications() {
-    return getNotifications(this.baseUrl, await this.getToken());
+    return getNotifications(this.apiUrl, await this.getToken());
   }
 
   async getUsers(username: string) {
     return getUsers(
-      this.baseUrl,
+      this.apiUrl,
       username,
       await undefinedOnfail(this.getToken()),
     );
   }
   async getUser(username: string) {
     return getUser(
-      this.baseUrl,
+      this.apiUrl,
       username,
       await undefinedOnfail(this.getToken()),
     );
   }
   async getUsersByUsername(usernames: string[]) {
     return getUsersByUsername(
-      this.baseUrl,
+      this.apiUrl,
       usernames,
       await undefinedOnfail(this.getToken()),
     );
   }
   async updateUser(info: UpdateUserInfo) {
-    return updateUser(this.baseUrl, info, await this.getToken());
+    return updateUser(this.apiUrl, info, await this.getToken());
   }
   async updateUserProfilePicture(blob: Blob) {
     return updateUserProfilePicture(
@@ -162,17 +164,49 @@ export class ApiService {
   async deleteUser() {
     const token = await this.getToken();
 
-    const response = await fetch(`${this.baseUrl}/user`, {
+    if (!usernameExistsInToken(token)) {
+      throw Error("User is not signed in full");
+    }
+
+    const response = await fetch(`${this.apiUrl}/user`, {
       method: "DELETE",
       headers: {
         authorization: `Bearer ${token}`,
       },
     });
 
-    if (response.status != 200) {
-      throw new Error(
-        `Received unexpected status code ${response.status} ${await response.text()}`,
-      );
+    if (response.status == 200) {
+      return;
     }
+
+    throwStatusError(response.status, await response.text());
+  }
+
+  async assignUsername(username: string) {
+    if (!isValidUsername(username)) {
+      throw new Error("Not a valid username");
+    }
+
+    const token = await this.getToken();
+
+    if (usernameExistsInToken(token)) {
+      throw Error("Username already assigned");
+    }
+
+    const response = await fetch(`${this.apiUrl}/user`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${await this.getToken()}`,
+      },
+      body: new Uint8Array(
+        FullUser.encode(FullUser.create({ uname: username })).finish(),
+      ),
+    });
+
+    if (response.status == 200 || response.status == 201) {
+      return;
+    }
+
+    throwStatusError(response.status, await response.text());
   }
 }
