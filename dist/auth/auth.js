@@ -25,6 +25,8 @@ class Auth0Handler {
                 audience: audience,
                 redirect_uri: redirectUrl,
             },
+            useRefreshTokens: true,
+            useRefreshTokensFallback: false,
         });
         const handler = new Auth0Handler(client, onAuthStatusChangeCallback);
         instance = handler;

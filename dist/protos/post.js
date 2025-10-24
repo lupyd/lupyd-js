@@ -5,7 +5,9 @@
 //   protoc               v6.31.1
 // source: post.proto
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostHashtags = exports.PostHashtag = exports.PostReport = exports.PollUserVotes = exports.PollUserVote = exports.CreatePollFields = exports.PollResults = exports.PollResult = exports.PollOption = exports.PollVote = exports.CreateFileFields = exports.PostIds = exports.Vote = exports.Votes = exports.FullPosts = exports.GetPostsData = exports.File = exports.CreatePostWithFiles = exports.CreatePostDetails = exports.FullPost = exports.PostBodies = exports.PostBody = exports.BoolValue = exports.postTypeToJSON = exports.postTypeFromJSON = exports.postType = exports.protobufPackage = void 0;
+exports.PostHashtags = exports.PostHashtag = exports.PostReport = exports.PollUserVotes = exports.PollUserVote = exports.CreatePollFields = exports.PollResults = exports.PollResult = exports.PollOption = exports.PollVote = exports.CreateFileFields = exports.PostIds = exports.Vote = exports.Votes = exports.FullPosts = exports.GetPostsData = exports.File = exports.CreatePostWithFiles = exports.CreatePostDetails = exports.FullPost = exports.PostBodies = exports.PostBody = exports.BoolValue = exports.postType = exports.protobufPackage = void 0;
+exports.postTypeFromJSON = postTypeFromJSON;
+exports.postTypeToJSON = postTypeToJSON;
 /* eslint-disable */
 const wire_1 = require("@bufbuild/protobuf/wire");
 const lupyd_md_1 = require("./lupyd-md");
@@ -42,7 +44,6 @@ function postTypeFromJSON(object) {
             return postType.UNRECOGNIZED;
     }
 }
-exports.postTypeFromJSON = postTypeFromJSON;
 function postTypeToJSON(object) {
     switch (object) {
         case postType.NOT_DEFINED:
@@ -60,7 +61,6 @@ function postTypeToJSON(object) {
             return "UNRECOGNIZED";
     }
 }
-exports.postTypeToJSON = postTypeToJSON;
 function createBaseBoolValue() {
     return { val: false };
 }

@@ -49,6 +49,8 @@ export class Auth0Handler {
         audience: audience,
         redirect_uri: redirectUrl,
       },
+      useRefreshTokens: true,
+      useRefreshTokensFallback: false,
     });
 
     const handler = new Auth0Handler(client, onAuthStatusChangeCallback);
@@ -67,7 +69,7 @@ export class Auth0Handler {
     return handler;
   }
 
-  async login(appState: any, _openUrl? : ((url: string) => Promise<void> | void)) {
+  async login(appState: any, _openUrl?: (url: string) => Promise<void> | void) {
     if (process.env.NEXT_PUBLIC_JS_ENV_EMULATOR_MODE === "true") {
       await this.client.loginWithPopup(undefined, {
         timeoutInSeconds: 60 * 10,
@@ -75,7 +77,7 @@ export class Auth0Handler {
     } else {
       await this.client.loginWithRedirect({
         appState,
-        openUrl(url) { 
+        openUrl(url) {
           if (_openUrl) {
             _openUrl(url);
             return;
@@ -168,7 +170,7 @@ export class Auth0Handler {
     }
   }
 
-  async handleRedirectCallback(url? : string) {
+  async handleRedirectCallback(url?: string) {
     const result = await this.client.handleRedirectCallback(url);
 
     const user = await this.getUser();

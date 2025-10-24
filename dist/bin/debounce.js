@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.debounce = void 0;
+exports.debounce = debounce;
 function debounce(callback, duration) {
     let timeoutId;
     return (...args) => {
@@ -12,4 +12,3 @@ function debounce(callback, duration) {
         }, duration);
     };
 }
-exports.debounce = debounce;

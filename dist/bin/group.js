@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createGroup = void 0;
+exports.createGroup = createGroup;
 function createGroup() {
 }
-exports.createGroup = createGroup;

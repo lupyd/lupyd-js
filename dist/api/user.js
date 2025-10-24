@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserRelation = exports.getUserRelations = exports.UserRelationsState = exports.relationToString = exports.deleteUserProfilePicture = exports.updateUserProfilePicture = exports.updateUser = exports.getUsersByUsername = exports.getUser = exports.getUsers = void 0;
+exports.UserRelationsState = exports.relationToString = exports.deleteUserProfilePicture = exports.updateUserProfilePicture = exports.updateUser = exports.getUsersByUsername = exports.getUser = exports.getUsers = void 0;
+exports.getUserRelations = getUserRelations;
+exports.updateUserRelation = updateUserRelation;
 const __1 = require("..");
 const auth_1 = require("../auth/auth");
 const utils_1 = require("../bin/utils");
@@ -193,7 +195,6 @@ async function getUserRelations() {
     }
     return __1.UserProtos.Relations.decode(new Uint8Array(await response.arrayBuffer()));
 }
-exports.getUserRelations = getUserRelations;
 async function updateUserRelation(username, relation) {
     if (!(await (0, auth_1.getAuthHandler)()?.getUsername())) {
         throw new Error("User haven't completed their sign in setup");
@@ -207,4 +208,3 @@ async function updateUserRelation(username, relation) {
         throw new Error(await response.text());
     }
 }
-exports.updateUserRelation = updateUserRelation;
