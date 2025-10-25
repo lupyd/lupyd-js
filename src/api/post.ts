@@ -214,7 +214,7 @@ export const putVotes = async (
   token?: string,
 ) => {
   const url = `${apiUrl}/vote`;
-  if (!token || usernameExistsInToken(token)) {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error(`User not authenticated`);
   }
   const body = new Uint8Array(Votes.encode(Votes.create({ votes })).finish());
@@ -238,7 +238,7 @@ export const createPost = async (
   token?: string,
 ) => {
   const url = `${apiUrl}/post`;
-  if (!token || usernameExistsInToken(token))
+  if (!token || !usernameExistsInToken(token))
     throw new Error("User Not Authenticated");
   const response = await fetch(url, {
     method: "POST",
@@ -310,7 +310,7 @@ export const createPostWithFiles = async (
   token?: string,
 ) => {
   const url = `${apiCdnUrl}/post-full`;
-  if (!token || usernameExistsInToken(token))
+  if (!token || !usernameExistsInToken(token))
     throw new Error("User Not Authenticated");
 
   if (!progressCallback) {
@@ -388,7 +388,7 @@ export const deletePost = async (
   id: Uint8Array,
   token?: string,
 ) => {
-  if (!token || usernameExistsInToken(token)) {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error("User is not signed in");
   }
 
@@ -411,7 +411,7 @@ export const deletePost = async (
 export const getTrendingHashtags = async (apiUrl: string) => {
   const url = `${apiUrl}/hashtags`;
   const response = await fetch(url);
-  if (response.status != 200) {
+  if (response.status == 200) {
     return PostProtos.PostHashtags.decode(
       new Uint8Array(await response.arrayBuffer()),
     );
@@ -421,7 +421,7 @@ export const getTrendingHashtags = async (apiUrl: string) => {
 };
 
 export const getNotifications = async (apiUrl: string, token?: string) => {
-  if (!token || usernameExistsInToken(token)) {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error("User not authenticated");
   }
   const url = `${apiUrl}/notifications`;

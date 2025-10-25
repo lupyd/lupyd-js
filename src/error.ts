@@ -1,5 +1,3 @@
-import { createDeflate } from "zlib";
-
 type ErrorConstructor<T extends Error> = new (...args: any[]) => T;
 
 export function createError<T extends string, E extends Error>(
