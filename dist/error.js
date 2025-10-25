@@ -34,5 +34,5 @@ function throwStatusError(status, text) {
     if (status == 409) {
         throw new exports.ConflictStatusError(text);
     }
-    throw new exports.UnexpectedStatusError(text);
+    throw new exports.UnexpectedStatusError(`[${status}] ${text}`);
 }

@@ -62,5 +62,5 @@ export function throwStatusError(status: number, text: string): never {
     throw new ConflictStatusError(text);
   }
 
-  throw new UnexpectedStatusError(text);
+  throw new UnexpectedStatusError(`[${status}] ${text}`);
 }
