@@ -1,21 +1,26 @@
 "use strict";
+// import { API_URL, API_CDN_URL } from "../constants";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNotifications = exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.putVote = exports.getPosts = exports.FetchType = exports.getPost = void 0;
-const constants_1 = require("../constants");
+exports.getNotifications = exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.getPosts = exports.FetchType = exports.getPost = void 0;
 const post_1 = require("../protos/post");
 const utils_1 = require("../bin/utils");
 const __1 = require("..");
 const notification_1 = require("../protos/notification");
-const auth_1 = require("../auth/auth");
-const getPost = async (apiUrl, id) => {
+const api_1 = require("./api");
+const error_1 = require("../error");
+const getPost = async (apiUrl, id, token) => {
     const url = `${apiUrl}/post/${id}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        headers: token
+            ? {
+                authorization: `Bearer ${token}`,
+            }
+            : undefined,
+    });
     if (response.status === 200) {
         return post_1.FullPost.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getPost = getPost;
 var FetchType;
@@ -104,113 +109,78 @@ const parseGetPostsData = (details) => {
     }
     return searchParams;
 };
-const getPosts = async (getPostDetails) => {
-    try {
-        const url = new URL(`${constants_1.API_URL}/post`, window.location.origin);
-        parseGetPostsData(getPostDetails).forEach((value, key) => url.searchParams.append(key, value));
-        const token = await (0, auth_1.getAuthHandler)()?.getToken();
-        const response = await fetch(url, {
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
-        console.log({ url: url.toString() });
-        if (response.status === 200) {
-            const posts = post_1.FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
-            return posts;
-        }
-        else {
-            console.error(`${url} [${response.status}] ${await response.text()}`);
-        }
+const getPosts = async (apiUrl, getPostDetails, token) => {
+    const url = new URL(`${apiUrl}/post`, window.location.origin);
+    parseGetPostsData(getPostDetails).forEach((value, key) => url.searchParams.append(key, value));
+    const response = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (response.status === 200) {
+        const posts = post_1.FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
+        return posts;
     }
-    catch (err) {
-        console.error(err);
-    }
-    return [];
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getPosts = getPosts;
-class VotesRequestBatcher {
-    queuedVotes = [];
-    intervalId;
-    constructor() {
-        this.intervalId = setInterval(() => {
-            this.flushVotes();
-        }, 10_000);
+// class VotesRequestBatcher {
+//   queuedVotes: Vote[] = [];
+//   intervalId: number;
+//   constructor() {
+//     this.intervalId = setInterval(() => {
+//       this.flushVotes();
+//     }, 10_000) as any as number;
+//   }
+//   static instance = new VotesRequestBatcher();
+//   queueVote(vote: Vote) {
+//     for (let i = 0; i < this.queuedVotes.length; i++) {
+//       if (this.queuedVotes[i].id == vote.id) {
+//         this.queuedVotes[i] = vote;
+//       }
+//     }
+//   }
+//   flushVotes() {
+//     const votes = this.queuedVotes;
+//     if (votes.length === 0) return;
+//     this.queuedVotes = [];
+//     putVotes(votes)
+//       .then(() =>
+//         console.log(
+//           `Flushed votes ${votes.map((e) => `${ulidStringify(e.id)}:${e.val}`)}`,
+//         ),
+//       )
+//       .catch((err) => {
+//         console.error(err);
+//         votes.forEach(this.queueVote);
+//       });
+//   }
+// }
+// export const putVote = (vote: Vote) => {
+//   // VotesRequestBatcher.instance.queueVote(vote);
+//   return putVotes([vote]);
+// };
+const putVotes = async (apiUrl, votes, token) => {
+    const url = `${apiUrl}/vote`;
+    if (!token || !(0, api_1.usernameExistsInToken)(token)) {
+        throw new Error(`User not authenticated`);
     }
-    static instance = new VotesRequestBatcher();
-    queueVote(vote) {
-        for (let i = 0; i < this.queuedVotes.length; i++) {
-            if (this.queuedVotes[i].id == vote.id) {
-                this.queuedVotes[i] = vote;
-            }
-        }
+    const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
+    const response = await fetch(url, {
+        method: "PUT",
+        body,
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    });
+    if (response.status === 200) {
+        return;
     }
-    flushVotes() {
-        const votes = this.queuedVotes;
-        if (votes.length === 0)
-            return;
-        this.queuedVotes = [];
-        (0, exports.putVotes)(votes)
-            .then(() => console.log(`Flushed votes ${votes.map((e) => `${(0, utils_1.ulidStringify)(e.id)}:${e.val}`)}`))
-            .catch((err) => {
-            console.error(err);
-            votes.forEach(this.queueVote);
-        });
-    }
-}
-const putVote = (vote) => {
-    // VotesRequestBatcher.instance.queueVote(vote);
-    return (0, exports.putVotes)([vote]);
-};
-exports.putVote = putVote;
-const putVotes = async (votes) => {
-    try {
-        // const db = (
-        //   document.querySelector("lupyd-databases") as LupydDatabasesElement
-        // ).localDb;
-        const url = `${constants_1.API_URL}/vote`;
-        const token = await (0, auth_1.getAuthHandler)()?.getToken();
-        if (!token) {
-            throw new Error(`User not authenticated`);
-        }
-        const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
-        const response = await fetch(url, {
-            method: "PUT",
-            body,
-            headers: {
-                authorization: `Bearer ${token}`,
-            },
-        });
-        if (response.status === 200) {
-            console.log(`Successfully voted`);
-            const username = await (0, auth_1.getAuthHandler)()?.getUsername();
-            // if (db) {
-            //   const tx = db.transaction(VOTES_DB_STORE_NAME, "readwrite");
-            //   await Promise.all(
-            //     votes.map((vote) =>
-            //       tx.store.put(
-            //         { id: vote.id, val: vote.val?.val, by: username },
-            //         ulidStringify(vote.id),
-            //       ),
-            //     ),
-            //   );
-            //   await tx.done;
-            // }
-        }
-        else {
-            console.error(`${url} [${response.status}] ${await response.text()}`);
-        }
-    }
-    catch (err) {
-        console.error(err);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.putVotes = putVotes;
-const createPost = async (createPostDetails) => {
-    const url = `${constants_1.API_URL}/post`;
-    const username = await (0, auth_1.getAuthHandler)()?.getUsername();
-    const token = await (0, auth_1.getAuthHandler)()?.getToken();
-    if (username === null || token === undefined)
+const createPost = async (apiUrl, createPostDetails, token) => {
+    const url = `${apiUrl}/post`;
+    if (!token || !(0, api_1.usernameExistsInToken)(token))
         throw new Error("User Not Authenticated");
-    console.log({ createPostDetails });
     const response = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -228,13 +198,10 @@ const createPost = async (createPostDetails) => {
             replyingTo: createPostDetails.replyingTo,
             postType: createPostDetails.postType,
             isMemory: createPostDetails.isMemory,
-            by: username,
         });
         return post;
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.createPost = createPost;
 const makeCreatePostWithFilesBlob = async (details, files) => {
@@ -259,10 +226,9 @@ const makeCreatePostWithFilesBlob = async (details, files) => {
     console.log({ blobParts });
     return new Blob(blobParts);
 };
-const createPostWithFiles = async (createPostDetails, files, progressCallback) => {
-    const url = `${constants_1.API_CDN_URL}/post-full`;
-    const token = await (0, auth_1.getAuthHandler)()?.getToken();
-    if (token === undefined)
+const createPostWithFiles = async (apiCdnUrl, createPostDetails, files, progressCallback, token) => {
+    const url = `${apiCdnUrl}/post-full`;
+    if (!token || !(0, api_1.usernameExistsInToken)(token))
         throw new Error("User Not Authenticated");
     if (!progressCallback) {
         progressCallback = (total, sent) => console.log(`${sent}/${total} progress: ${(sent * 100) / total}%`);
@@ -273,8 +239,10 @@ const createPostWithFiles = async (createPostDetails, files, progressCallback) =
     const response = await (0, utils_1.fetchWithProgress)(url, "PUT", {
         Authorization: `Bearer ${token}`,
         "content-type": "application/octet-stream",
-    }, body, (sent, total) => { if (progressCallback)
-        progressCallback(total, sent); }, (recv, total) => { });
+    }, body, (sent, total) => {
+        if (progressCallback)
+            progressCallback(total, sent);
+    }, (recv, total) => { });
     // const response = await fetch(url, {
     //   method: "PUT",
     //   headers: {
@@ -292,15 +260,12 @@ const createPostWithFiles = async (createPostDetails, files, progressCallback) =
     if (response.status === 200) {
         return post_1.FullPost.decode(response.body);
     }
-    else {
-        console.error(`${url} [${response.status}] ${new TextDecoder().decode(response.body)}`);
-    }
+    (0, error_1.throwStatusError)(response.status, new TextDecoder().decode(response.body));
 };
 exports.createPostWithFiles = createPostWithFiles;
-const reportPost = async (id, text) => {
+const reportPost = async (apiUrl, id, text, token) => {
     const body = new Uint8Array(post_1.PostReport.encode(post_1.PostReport.create({ postId: id, description: text })).finish());
-    const url = `${constants_1.API_URL}/report`;
-    const token = await (0, auth_1.getAuthHandler)()?.getToken();
+    const url = `${apiUrl}/report`;
     if (token === undefined)
         throw new Error("User Not Authenticated");
     const response = await fetch(url, {
@@ -309,50 +274,50 @@ const reportPost = async (id, text) => {
         body,
     });
     if (response.status === 200) {
-        console.log(`Successfully submitted report`);
+        return;
     }
-    else {
-        console.error(`${url} [${response.status}] ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.reportPost = reportPost;
-const deletePost = async (id) => {
-    const username = await (0, auth_1.getAuthHandler)()?.getUsername();
-    const token = await (0, auth_1.getAuthHandler)()?.getToken();
-    if (!username || !token) {
+const deletePost = async (apiUrl, id, token) => {
+    if (!token || !(0, api_1.usernameExistsInToken)(token)) {
         throw new Error("User is not signed in");
     }
-    const url = `${constants_1.API_URL}/post/${(0, utils_1.ulidStringify)(id)}`;
+    const url = `${apiUrl}/post/${(0, utils_1.ulidStringify)(id)}`;
     const response = await fetch(url, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${token}`,
         },
     });
-    console.log(`DELETE ${url} status: ${response.status} ${await response.text()}`);
+    if (response.status === 200) {
+        return;
+    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.deletePost = deletePost;
-const getTrendingHashtags = async () => {
-    const url = `${constants_1.API_URL}/hashtags`;
+const getTrendingHashtags = async (apiUrl) => {
+    const url = `${apiUrl}/hashtags`;
     const response = await fetch(url);
-    if (response.status != 200) {
-        throw new Error(`unexpected status code: ${response.status}, body: ${await response.text()}`);
+    if (response.status == 200) {
+        return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getTrendingHashtags = getTrendingHashtags;
-const getNotifications = async () => {
-    const url = `${constants_1.API_URL}/notifications`;
+const getNotifications = async (apiUrl, token) => {
+    if (!token || !(0, api_1.usernameExistsInToken)(token)) {
+        throw new Error("User not authenticated");
+    }
+    const url = `${apiUrl}/notifications`;
     const response = await fetch(url, {
         headers: {
-            authorization: `Bearer ${await (0, auth_1.getAuthHandler)()?.getToken()}`,
+            authorization: `Bearer ${token}`,
         },
     });
     if (response.status == 200) {
         return notification_1.Notifications.decode(new Uint8Array(await response.arrayBuffer()));
     }
-    else {
-        throw new Error(`Received unexpected status: ${response.status} ${await response.text()}`);
-    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getNotifications = getNotifications;

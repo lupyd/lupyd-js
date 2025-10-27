@@ -1,73 +1,85 @@
 import { UserProtos } from "..";
-import { getAuthHandler } from "../auth/auth";
 import { isValidUsername } from "../bin/utils";
+import { throwStatusError } from "../error";
 import { UpdateUserInfo, User, Users } from "../protos/user";
-import { API_CDN_URL, API_URL } from "./../constants";
+import { usernameExistsInToken } from "./api";
 
-export const getUsers = async (username: string) => {
+export const getUsers = async (
+  apiUrl: string,
+  username: string,
+  token?: string,
+) => {
   const users: User[] = [];
   if (username.length <= 1) {
     console.error(new Error("Invalid Username"));
     return users;
   }
 
-  const token = await getAuthHandler()?.getToken();
-  const response = await fetch(`${API_URL}/user/${username}*`, {
-    headers: token !== null ? { Authorization: `Bearer ${token}` } : undefined,
+  const response = await fetch(`${apiUrl}/user/${username}*`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   if (response.status === 200) {
     const body = await response.arrayBuffer();
     return Users.decode(new Uint8Array(body)).users;
   }
 
-  return users;
+  throwStatusError(response.status, await response.text());
 };
 
-export const getUser = async (username: string) => {
+export const getUser = async (
+  apiUrl: string,
+  username: string,
+  token?: string,
+) => {
   if (!isValidUsername(username)) {
     console.error(new Error("Invalid Username"));
   }
 
-  const token = await getAuthHandler()?.getToken();
-  const response = await fetch(`${API_URL}/user/${username}`, {
-    headers: token !== null ? { Authorization: `Bearer ${token}` } : undefined,
+  const response = await fetch(`${apiUrl}/user/${username}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   if (response.status === 200) {
     const body = await response.arrayBuffer();
     return User.decode(new Uint8Array(body));
   }
+
+  throwStatusError(response.status, await response.text());
 };
 
-export const getUsersByUsername = async (usernames: string[]) => {
+export const getUsersByUsername = async (
+  apiUrl: string,
+  usernames: string[],
+  token?: string,
+) => {
   const users: User[] = [];
   if (usernames.some((e) => !isValidUsername(e))) {
     console.error(new Error("Invalid Username"));
     return users;
   }
 
-  const token = await getAuthHandler()?.getToken();
   const response = await fetch(
-    `${API_URL}/user?users=${encodeURIComponent(usernames.join(","))}`,
+    `${apiUrl}/user?users=${encodeURIComponent(usernames.join(","))}`,
     {
-      headers:
-        token !== null ? { Authorization: `Bearer ${token}` } : undefined,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     },
   );
   if (response.status === 200) {
     const body = await response.arrayBuffer();
     return Users.decode(new Uint8Array(body)).users;
   }
-
-  return users;
+  throwStatusError(response.status, await response.text());
 };
 
-export const updateUser = async (info: UpdateUserInfo) => {
-  const token = await getAuthHandler()?.getToken();
-  if (!token) {
+export const updateUser = async (
+  apiUrl: string,
+  info: UpdateUserInfo,
+  token?: string,
+) => {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error(`User is not fully signed in`);
   }
 
-  const response = await fetch(`${API_URL}/user`, {
+  const response = await fetch(`${apiUrl}/user`, {
     method: "PUT",
     body: new Uint8Array(UpdateUserInfo.encode(info).finish()),
     headers: {
@@ -76,52 +88,52 @@ export const updateUser = async (info: UpdateUserInfo) => {
     },
   });
 
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
-export const updateUserProfilePicture = async (blob: Blob) => {
-  const token = await getAuthHandler()?.getToken();
-
-  if (!token) {
+export const updateUserProfilePicture = async (
+  apiCdnUrl: string,
+  blob: Blob,
+  token?: string,
+) => {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error(`User is not fully signed in`);
   }
 
-  const response = await fetch(`${API_CDN_URL}/user`, {
+  const response = await fetch(`${apiCdnUrl}/user`, {
     method: "PUT",
     body: blob,
     headers: {
       authorization: `Bearer ${token}`,
     },
   });
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user profile ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
-export const deleteUserProfilePicture = async () => {
-  const token = await getAuthHandler()?.getToken();
-
-  if (!token) {
+export const deleteUserProfilePicture = async (
+  apiCdnUrl: string,
+  token?: string,
+) => {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error(`User is not fully signed in`);
   }
 
-  const response = await fetch(`${API_CDN_URL}/user`, {
+  const response = await fetch(`${apiCdnUrl}/user`, {
     method: "DELETE",
     headers: {
       authorization: `Bearer ${token}`,
     },
   });
-  if (response.status !== 200) {
-    console.error(
-      `Failed to update user profile ${response.status} ${await response.text()}`,
-    );
+  if (response.status === 200) {
+    return;
   }
+  throwStatusError(response.status, await response.text());
 };
 
 enum Relation {
@@ -147,17 +159,27 @@ export const relationToString = (r: Relation) => {
 export class UserRelationsState {
   private followedUsers: Set<string>;
   private blockedUsers: Set<string>;
-
+  private readonly apiUrl: string;
+  getToken: () => Promise<string>;
   onUpdate: (followedUsers: string[], blockedUsers: string[]) => void;
 
-  constructor(onUpdate: (followed: string[], blocked: string[]) => void) {
+  constructor(
+    onUpdate: (followed: string[], blocked: string[]) => void,
+    apiUrl: string,
+    getToken: () => Promise<string>,
+  ) {
     this.onUpdate = onUpdate;
     this.followedUsers = new Set();
     this.blockedUsers = new Set();
+    this.apiUrl = apiUrl;
+    this.getToken = getToken;
   }
 
   async refresh() {
-    const relations = await getUserRelations();
+    const relations = await getUserRelations(
+      this.apiUrl,
+      await this.getToken(),
+    );
     this.fromRelations(relations);
     this.callUpdate();
   }
@@ -180,7 +202,12 @@ export class UserRelationsState {
   }
 
   async blockUser(username: string) {
-    await updateUserRelation(username, Relation.block);
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.block,
+      await this.getToken(),
+    );
 
     this.followedUsers.delete(username);
     this.blockedUsers.add(username);
@@ -189,14 +216,24 @@ export class UserRelationsState {
   }
 
   async unblockUser(username: string) {
-    await updateUserRelation(username, Relation.unblock);
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.unblock,
+      await this.getToken(),
+    );
 
     this.blockedUsers.delete(username);
     this.callUpdate();
   }
 
   async followUser(username: string) {
-    await updateUserRelation(username, Relation.follow);
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.follow,
+      await this.getToken(),
+    );
 
     this.followedUsers.add(username);
     this.blockedUsers.delete(username);
@@ -204,45 +241,50 @@ export class UserRelationsState {
   }
 
   async unfollowUser(username: string) {
-    await updateUserRelation(username, Relation.unblock);
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.unblock,
+      await this.getToken(),
+    );
 
     this.followedUsers.delete(username);
     this.callUpdate();
   }
 }
 
-export async function getUserRelations() {
-  if (!(await getAuthHandler()?.getUsername())) {
+export async function getUserRelations(apiUrl: string, token?: string) {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error("User haven't completed their sign in setup");
   }
 
-  const token = await getAuthHandler()?.getToken();
-  const response = await fetch(`${API_URL}/relations`, {
+  const response = await fetch(`${apiUrl}/relations`, {
     headers: {
       authorization: `Bearer ${token}`,
     },
   });
 
-  if (response.status != 200) {
-    throw new Error(
-      `received invalid status ${response.status}, text: ${await response.text()}`,
+  if (response.status == 200) {
+    return UserProtos.Relations.decode(
+      new Uint8Array(await response.arrayBuffer()),
     );
   }
 
-  return UserProtos.Relations.decode(
-    new Uint8Array(await response.arrayBuffer()),
-  );
+  throwStatusError(response.status, await response.text());
 }
 
-export async function updateUserRelation(username: string, relation: Relation) {
-  if (!(await getAuthHandler()?.getUsername())) {
+export async function updateUserRelation(
+  apiUrl: string,
+  username: string,
+  relation: Relation,
+  token: string,
+) {
+  if (!token || !usernameExistsInToken(token)) {
     throw new Error("User haven't completed their sign in setup");
   }
 
-  const token = await getAuthHandler()?.getToken();
-
   const response = await fetch(
-    `${API_URL}/relation?uname=${username}&relation=${relationToString(relation)}`,
+    `${apiUrl}/relation?uname=${username}&relation=${relationToString(relation)}`,
     {
       method: "PUT",
       headers: { authorization: `Bearer ${token}` },
@@ -250,6 +292,8 @@ export async function updateUserRelation(username: string, relation: Relation) {
   );
 
   if (response.status !== 200) {
-    throw new Error(await response.text());
+    return;
   }
+
+  throwStatusError(response.status, await response.text());
 }

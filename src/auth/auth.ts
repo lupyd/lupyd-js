@@ -1,20 +1,9 @@
 import { Auth0Client, createAuth0Client } from "@auth0/auth0-spa-js";
 import { API_URL } from "../constants";
 import { FullUser } from "../protos/user";
+import { DecodedToken } from "../api/api";
 
 let instance: Auth0Handler | undefined = undefined;
-
-export interface DecodedToken {
-  uname: string | undefined;
-  perms: number | undefined;
-  iss: string;
-  aud: string[];
-  iat: number;
-  exp: number;
-  jtl: string;
-  client_id: string;
-  sub: string;
-}
 
 export class Auth0Handler {
   private client: Auth0Client;
