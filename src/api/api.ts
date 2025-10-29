@@ -209,4 +209,28 @@ export class ApiService {
 
     throwStatusError(response.status, await response.text());
   }
+
+  async uploadFile(filename: string, mimeType: string, blob: Blob) {
+    const token = await this.getToken();
+    if (!usernameExistsInToken(token)) {
+      throw Error(`User is not authenticated`);
+    }
+    const response = await fetch(
+      `${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`,
+      {
+        headers: {
+          "content-type": mimeType,
+          authorization: `Bearer ${token}`,
+        },
+        body: blob,
+      },
+    );
+
+    if (response.status == 200) {
+      const key = await response.text();
+      return `${this.apiCdnUrl}/${key}`;
+    }
+
+    throwStatusError(response.status, await response.text());
+  }
 }
