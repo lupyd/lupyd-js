@@ -143,9 +143,9 @@ class ApiService {
             },
             body: blob,
         });
-        if (response.status == 200) {
+        if (response.ok) {
             const key = await response.text();
-            return `${this.apiCdnUrl}/${key}`;
+            return key;
         }
         (0, error_1.throwStatusError)(response.status, await response.text());
     }

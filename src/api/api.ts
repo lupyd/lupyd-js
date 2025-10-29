@@ -210,7 +210,7 @@ export class ApiService {
     throwStatusError(response.status, await response.text());
   }
 
-  async uploadFile(filename: string, mimeType: string, blob: Blob) {
+  async uploadFile(filename: string, mimeType: string, blob: BodyInit) {
     const token = await this.getToken();
     if (!usernameExistsInToken(token)) {
       throw Error(`User is not authenticated`);
@@ -226,9 +226,9 @@ export class ApiService {
       },
     );
 
-    if (response.status == 200) {
+    if (response.ok) {
       const key = await response.text();
-      return `${this.apiCdnUrl}/${key}`;
+      return key;
     }
 
     throwStatusError(response.status, await response.text());

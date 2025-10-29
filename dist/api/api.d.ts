@@ -37,5 +37,5 @@ export declare class ApiService {
     deleteUserProfilePicture(): Promise<void>;
     deleteUser(): Promise<void>;
     assignUsername(username: string): Promise<void>;
-    uploadFile(filename: string, mimeType: string, blob: Blob): Promise<string>;
+    uploadFile(filename: string, mimeType: string, blob: BodyInit): Promise<string>;
 }
