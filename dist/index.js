@@ -47,5 +47,4 @@ exports.ChatProtos = __importStar(require("./protos/chats"));
 exports.MdProtos = __importStar(require("./protos/lupyd-md"));
 exports.NotificationProtos = __importStar(require("./protos/notification"));
 __exportStar(require("./api/api"), exports);
-__exportStar(require("./auth/auth"), exports);
 __exportStar(require("./error"), exports);

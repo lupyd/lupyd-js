@@ -8,5 +8,4 @@ export * as ChatProtos from "./protos/chats";
 export * as MdProtos from "./protos/lupyd-md";
 export * as NotificationProtos from "./protos/notification";
 export * from "./api/api";
-export * from "./auth/auth";
 export * from "./error";
