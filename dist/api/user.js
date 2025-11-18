@@ -204,7 +204,7 @@ async function updateUserRelation(apiUrl, username, relation, token) {
         method: "PUT",
         headers: { authorization: `Bearer ${token}` },
     });
-    if (response.status !== 200) {
+    if (response.status == 200) {
         return;
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
