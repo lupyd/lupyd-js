@@ -137,6 +137,7 @@ class ApiService {
             throw Error(`User is not authenticated`);
         }
         const response = await fetch(`${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`, {
+            method: "PUT",
             headers: {
                 "content-type": mimeType,
                 authorization: `Bearer ${token}`,
