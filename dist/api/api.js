@@ -143,6 +143,8 @@ class ApiService {
                 authorization: `Bearer ${token}`,
             },
             body: blob,
+            //@ts-ignore
+            duplex: "half",
         });
         if (response.ok) {
             const key = await response.text();

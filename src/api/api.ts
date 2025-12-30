@@ -224,6 +224,8 @@ export class ApiService {
           authorization: `Bearer ${token}`,
         },
         body: blob,
+        //@ts-ignore
+        duplex: "half",
       },
     );
 
