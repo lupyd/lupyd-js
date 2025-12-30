@@ -131,17 +131,21 @@ class ApiService {
         }
         (0, error_1.throwStatusError)(response.status, await response.text());
     }
-    async uploadFile(filename, mimeType, blob) {
+    async uploadFile(filename, mimeType, blob, contentLength = undefined) {
         const token = await this.getToken();
         if (!usernameExistsInToken(token)) {
             throw Error(`User is not authenticated`);
         }
+        const headers = {
+            "content-type": mimeType,
+            authorization: `Bearer ${token}`,
+        };
+        if (contentLength) {
+            headers["content-length"] = contentLength.toString();
+        }
         const response = await fetch(`${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`, {
             method: "PUT",
-            headers: {
-                "content-type": mimeType,
-                authorization: `Bearer ${token}`,
-            },
+            headers: headers,
             body: blob,
             //@ts-ignore
             duplex: "half",
