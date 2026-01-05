@@ -26,3 +26,5 @@ export declare const reportPost: (apiUrl: string, id: Uint8Array, text: string, 
 export declare const deletePost: (apiUrl: string, id: Uint8Array, token?: string) => Promise<void>;
 export declare const getTrendingHashtags: (apiUrl: string) => Promise<PostProtos.PostHashtags>;
 export declare const getNotifications: (apiUrl: string, token?: string) => Promise<Notifications>;
+export declare const savePost: (apiUrl: string, token: string, postId: string) => Promise<void>;
+export declare const getSavedPosts: (apiUrl: string, token: string) => Promise<string[]>;

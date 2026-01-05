@@ -166,48 +166,6 @@ export const getPosts = async (
   throwStatusError(response.status, await response.text());
 };
 
-// class VotesRequestBatcher {
-//   queuedVotes: Vote[] = [];
-//   intervalId: number;
-
-//   constructor() {
-//     this.intervalId = setInterval(() => {
-//       this.flushVotes();
-//     }, 10_000) as any as number;
-//   }
-
-//   static instance = new VotesRequestBatcher();
-
-//   queueVote(vote: Vote) {
-//     for (let i = 0; i < this.queuedVotes.length; i++) {
-//       if (this.queuedVotes[i].id == vote.id) {
-//         this.queuedVotes[i] = vote;
-//       }
-//     }
-//   }
-
-//   flushVotes() {
-//     const votes = this.queuedVotes;
-//     if (votes.length === 0) return;
-//     this.queuedVotes = [];
-//     putVotes(votes)
-//       .then(() =>
-//         console.log(
-//           `Flushed votes ${votes.map((e) => `${ulidStringify(e.id)}:${e.val}`)}`,
-//         ),
-//       )
-//       .catch((err) => {
-//         console.error(err);
-//         votes.forEach(this.queueVote);
-//       });
-//   }
-// }
-
-// export const putVote = (vote: Vote) => {
-//   // VotesRequestBatcher.instance.queueVote(vote);
-//   return putVotes([vote]);
-// };
-
 export const putVotes = async (
   apiUrl: string,
   votes: Vote[],
@@ -336,20 +294,6 @@ export const createPostWithFiles = async (
     (recv, total) => {},
   );
 
-  // const response = await fetch(url, {
-  //   method: "PUT",
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //     "content-length": contentLength.toString(),
-  //     "content-type": "application/octet-stream",
-  //   },
-  //   body,
-  // });
-  // if (response.status === 200) {
-  //   return FullPost.decode(new Uint8Array(await response.arrayBuffer()));
-  // } else {
-  //   console.error(`${url} [${response.status}] ${await response.text()}`);
-  // }
   if (response.status === 200) {
     return FullPost.decode(response.body);
   }
@@ -433,6 +377,57 @@ export const getNotifications = async (apiUrl: string, token?: string) => {
 
   if (response.status == 200) {
     return Notifications.decode(new Uint8Array(await response.arrayBuffer()));
+  }
+
+  throwStatusError(response.status, await response.text());
+};
+
+export const savePost = async (
+  apiUrl: string,
+  token: string,
+  postId: string,
+) => {
+  if (!usernameExistsInToken(token)) {
+    throw new Error("User not authenticated");
+  }
+
+  const url = `${apiUrl}/savepost?id=${postId}`;
+  const response = await fetch(url, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+    method: "PUT",
+  });
+
+  if (response.status == 200) {
+    return;
+  }
+
+  throwStatusError(response.status, await response.text());
+};
+
+export const getSavedPosts = async (apiUrl: string, token: string) => {
+  if (!usernameExistsInToken(token)) {
+    throw new Error("User not authenticated");
+  }
+
+  const url = `${apiUrl}/saved_posts`;
+  const response = await fetch(url, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  // returns plain uuids; bad choice, but allows client side pagination
+  if (response.status == 200) {
+    const body = await response.arrayBuffer();
+    const postIds: string[] = [];
+
+    for (let i = 0; i < body.byteLength; i += 16) {
+      postIds.push(ulidStringify(new Uint8Array(body.slice(i, i + 16))));
+    }
+
+    return postIds;
   }
 
   throwStatusError(response.status, await response.text());

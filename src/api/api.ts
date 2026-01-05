@@ -10,9 +10,11 @@ import {
   getPost,
   getPosts,
   GetPostsData,
+  getSavedPosts,
   getTrendingHashtags,
   putVotes,
   reportPost,
+  savePost,
 } from "./post";
 import {
   deleteUserProfilePicture,
@@ -182,7 +184,7 @@ export class ApiService {
     throwStatusError(response.status, await response.text());
   }
 
-  async assignUsername(username: string) {
+  async assignUsername(username: string, bio: Uint8Array, settings: number) {
     if (!isValidUsername(username)) {
       throw new Error("Not a valid username");
     }
@@ -199,7 +201,9 @@ export class ApiService {
         authorization: `Bearer ${await this.getToken()}`,
       },
       body: new Uint8Array(
-        FullUser.encode(FullUser.create({ uname: username })).finish(),
+        FullUser.encode(
+          FullUser.create({ uname: username, settings, bio }),
+        ).finish(),
       ),
     });
 
@@ -247,5 +251,13 @@ export class ApiService {
     }
 
     throwStatusError(response.status, await response.text());
+  }
+
+  async savePost(postId: string) {
+    return savePost(this.apiUrl, await this.getToken(), postId);
+  }
+
+  async getSavedPosts() {
+    return getSavedPosts(this.apiUrl, await this.getToken());
   }
 }
