@@ -1,7 +1,7 @@
 "use strict";
 // import { API_URL, API_CDN_URL } from "../constants";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNotifications = exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.getPosts = exports.FetchType = exports.getPost = void 0;
+exports.getSavedPosts = exports.savePost = exports.getNotifications = exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.getPosts = exports.FetchType = exports.getPost = void 0;
 const post_1 = require("../protos/post");
 const utils_1 = require("../bin/utils");
 const __1 = require("..");
@@ -122,42 +122,6 @@ const getPosts = async (apiUrl, getPostDetails, token) => {
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getPosts = getPosts;
-// class VotesRequestBatcher {
-//   queuedVotes: Vote[] = [];
-//   intervalId: number;
-//   constructor() {
-//     this.intervalId = setInterval(() => {
-//       this.flushVotes();
-//     }, 10_000) as any as number;
-//   }
-//   static instance = new VotesRequestBatcher();
-//   queueVote(vote: Vote) {
-//     for (let i = 0; i < this.queuedVotes.length; i++) {
-//       if (this.queuedVotes[i].id == vote.id) {
-//         this.queuedVotes[i] = vote;
-//       }
-//     }
-//   }
-//   flushVotes() {
-//     const votes = this.queuedVotes;
-//     if (votes.length === 0) return;
-//     this.queuedVotes = [];
-//     putVotes(votes)
-//       .then(() =>
-//         console.log(
-//           `Flushed votes ${votes.map((e) => `${ulidStringify(e.id)}:${e.val}`)}`,
-//         ),
-//       )
-//       .catch((err) => {
-//         console.error(err);
-//         votes.forEach(this.queueVote);
-//       });
-//   }
-// }
-// export const putVote = (vote: Vote) => {
-//   // VotesRequestBatcher.instance.queueVote(vote);
-//   return putVotes([vote]);
-// };
 const putVotes = async (apiUrl, votes, token) => {
     const url = `${apiUrl}/vote`;
     if (!token || !(0, api_1.usernameExistsInToken)(token)) {
@@ -243,20 +207,6 @@ const createPostWithFiles = async (apiCdnUrl, createPostDetails, files, progress
         if (progressCallback)
             progressCallback(total, sent);
     }, (recv, total) => { });
-    // const response = await fetch(url, {
-    //   method: "PUT",
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //     "content-length": contentLength.toString(),
-    //     "content-type": "application/octet-stream",
-    //   },
-    //   body,
-    // });
-    // if (response.status === 200) {
-    //   return FullPost.decode(new Uint8Array(await response.arrayBuffer()));
-    // } else {
-    //   console.error(`${url} [${response.status}] ${await response.text()}`);
-    // }
     if (response.status === 200) {
         return post_1.FullPost.decode(response.body);
     }
@@ -321,3 +271,42 @@ const getNotifications = async (apiUrl, token) => {
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
 exports.getNotifications = getNotifications;
+const savePost = async (apiUrl, token, postId) => {
+    if (!(0, api_1.usernameExistsInToken)(token)) {
+        throw new Error("User not authenticated");
+    }
+    const url = `${apiUrl}/savepost?id=${postId}`;
+    const response = await fetch(url, {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+        method: "PUT",
+    });
+    if (response.status == 200) {
+        return;
+    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
+};
+exports.savePost = savePost;
+const getSavedPosts = async (apiUrl, token) => {
+    if (!(0, api_1.usernameExistsInToken)(token)) {
+        throw new Error("User not authenticated");
+    }
+    const url = `${apiUrl}/saved_posts`;
+    const response = await fetch(url, {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    });
+    // returns plain uuids; bad choice, but allows client side pagination
+    if (response.status == 200) {
+        const body = await response.arrayBuffer();
+        const postIds = [];
+        for (let i = 0; i < body.byteLength; i += 16) {
+            postIds.push((0, utils_1.ulidStringify)(new Uint8Array(body.slice(i, i + 16))));
+        }
+        return postIds;
+    }
+    (0, error_1.throwStatusError)(response.status, await response.text());
+};
+exports.getSavedPosts = getSavedPosts;

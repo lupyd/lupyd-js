@@ -10,9 +10,11 @@ import {
   getPost,
   getPosts,
   GetPostsData,
+  getSavedPosts,
   getTrendingHashtags,
   putVotes,
   reportPost,
+  savePost,
 } from "./post";
 import {
   deleteUserProfilePicture,
@@ -182,7 +184,7 @@ export class ApiService {
     throwStatusError(response.status, await response.text());
   }
 
-  async assignUsername(username: string) {
+  async assignUsername(username: string, bio: Uint8Array, settings: number) {
     if (!isValidUsername(username)) {
       throw new Error("Not a valid username");
     }
@@ -199,7 +201,9 @@ export class ApiService {
         authorization: `Bearer ${await this.getToken()}`,
       },
       body: new Uint8Array(
-        FullUser.encode(FullUser.create({ uname: username })).finish(),
+        FullUser.encode(
+          FullUser.create({ uname: username, settings, bio }),
+        ).finish(),
       ),
     });
 
@@ -208,5 +212,52 @@ export class ApiService {
     }
 
     throwStatusError(response.status, await response.text());
+  }
+
+  async uploadFile(
+    filename: string,
+    mimeType: string,
+    blob: BodyInit,
+    contentLength: number | undefined = undefined,
+  ) {
+    const token = await this.getToken();
+    if (!usernameExistsInToken(token)) {
+      throw Error(`User is not authenticated`);
+    }
+
+    const headers: Record<string, string> = {
+      "content-type": mimeType,
+      authorization: `Bearer ${token}`,
+    };
+
+    if (contentLength) {
+      headers["content-length"] = contentLength.toString();
+    }
+
+    const response = await fetch(
+      `${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`,
+      {
+        method: "PUT",
+        headers: headers,
+        body: blob,
+        //@ts-ignore
+        duplex: "half",
+      },
+    );
+
+    if (response.ok) {
+      const key = await response.text();
+      return key;
+    }
+
+    throwStatusError(response.status, await response.text());
+  }
+
+  async savePost(postId: string) {
+    return savePost(this.apiUrl, await this.getToken(), postId);
+  }
+
+  async getSavedPosts() {
+    return getSavedPosts(this.apiUrl, await this.getToken());
   }
 }

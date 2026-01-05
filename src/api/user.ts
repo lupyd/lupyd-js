@@ -291,7 +291,7 @@ export async function updateUserRelation(
     },
   );
 
-  if (response.status !== 200) {
+  if (response.status == 200) {
     return;
   }
 

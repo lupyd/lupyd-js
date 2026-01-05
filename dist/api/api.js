@@ -111,7 +111,7 @@ class ApiService {
         }
         (0, error_1.throwStatusError)(response.status, await response.text());
     }
-    async assignUsername(username) {
+    async assignUsername(username, bio, settings) {
         if (!(0, utils_1.isValidUsername)(username)) {
             throw new Error("Not a valid username");
         }
@@ -124,12 +124,43 @@ class ApiService {
             headers: {
                 authorization: `Bearer ${await this.getToken()}`,
             },
-            body: new Uint8Array(user_1.FullUser.encode(user_1.FullUser.create({ uname: username })).finish()),
+            body: new Uint8Array(user_1.FullUser.encode(user_1.FullUser.create({ uname: username, settings, bio })).finish()),
         });
         if (response.status == 200 || response.status == 201) {
             return;
         }
         (0, error_1.throwStatusError)(response.status, await response.text());
+    }
+    async uploadFile(filename, mimeType, blob, contentLength = undefined) {
+        const token = await this.getToken();
+        if (!usernameExistsInToken(token)) {
+            throw Error(`User is not authenticated`);
+        }
+        const headers = {
+            "content-type": mimeType,
+            authorization: `Bearer ${token}`,
+        };
+        if (contentLength) {
+            headers["content-length"] = contentLength.toString();
+        }
+        const response = await fetch(`${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`, {
+            method: "PUT",
+            headers: headers,
+            body: blob,
+            //@ts-ignore
+            duplex: "half",
+        });
+        if (response.ok) {
+            const key = await response.text();
+            return key;
+        }
+        (0, error_1.throwStatusError)(response.status, await response.text());
+    }
+    async savePost(postId) {
+        return (0, post_1.savePost)(this.apiUrl, await this.getToken(), postId);
+    }
+    async getSavedPosts() {
+        return (0, post_1.getSavedPosts)(this.apiUrl, await this.getToken());
     }
 }
 exports.ApiService = ApiService;

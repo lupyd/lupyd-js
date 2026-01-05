@@ -36,5 +36,8 @@ export declare class ApiService {
     updateUserProfilePicture(blob: Blob): Promise<void>;
     deleteUserProfilePicture(): Promise<void>;
     deleteUser(): Promise<void>;
-    assignUsername(username: string): Promise<void>;
+    assignUsername(username: string, bio: Uint8Array, settings: number): Promise<void>;
+    uploadFile(filename: string, mimeType: string, blob: BodyInit, contentLength?: number | undefined): Promise<string>;
+    savePost(postId: string): Promise<void>;
+    getSavedPosts(): Promise<string[]>;
 }
