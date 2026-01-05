@@ -8,7 +8,8 @@ export declare enum FetchType {
     Replies = 2,
     Edits = 3,
     Search = 4,
-    Hashtag = 5
+    Hashtag = 5,
+    Ids = 6
 }
 export interface GetPostsData {
     allowedPostTypes?: number;

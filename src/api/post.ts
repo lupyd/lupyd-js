@@ -45,6 +45,7 @@ export enum FetchType {
   Edits,
   Search,
   Hashtag,
+  Ids,
 }
 
 export interface GetPostsData {
@@ -134,6 +135,20 @@ const parseGetPostsData = (details: GetPostsData) => {
         searchParams.append("hashtag", details.fetchTypeFields);
       } else {
         throw new Error("Invalid FetchType.Hashtag");
+      }
+
+      break;
+    }
+    case FetchType.Ids: {
+      if (typeof details.fetchTypeFields === "string") {
+        searchParams.append("edits", details.fetchTypeFields);
+      } else if (
+        Array.isArray(details.fetchTypeFields) &&
+        details.fetchTypeFields.every((e) => typeof e === "string")
+      ) {
+        searchParams.append("ids", details.fetchTypeFields.join(","));
+      } else {
+        throw new Error("Invalid FetchType.Ids");
       }
 
       break;

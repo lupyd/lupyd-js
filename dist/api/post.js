@@ -31,6 +31,7 @@ var FetchType;
     FetchType[FetchType["Edits"] = 3] = "Edits";
     FetchType[FetchType["Search"] = 4] = "Search";
     FetchType[FetchType["Hashtag"] = 5] = "Hashtag";
+    FetchType[FetchType["Ids"] = 6] = "Ids";
 })(FetchType || (exports.FetchType = FetchType = {}));
 const parseGetPostsData = (details) => {
     const searchParams = new URLSearchParams();
@@ -103,6 +104,19 @@ const parseGetPostsData = (details) => {
             }
             else {
                 throw new Error("Invalid FetchType.Hashtag");
+            }
+            break;
+        }
+        case FetchType.Ids: {
+            if (typeof details.fetchTypeFields === "string") {
+                searchParams.append("edits", details.fetchTypeFields);
+            }
+            else if (Array.isArray(details.fetchTypeFields) &&
+                details.fetchTypeFields.every((e) => typeof e === "string")) {
+                searchParams.append("ids", details.fetchTypeFields.join(","));
+            }
+            else {
+                throw new Error("Invalid FetchType.Ids");
             }
             break;
         }
