@@ -1,0 +1,1 @@
+declare const DEFAULT_DISAPPEARING_MESSAGES: number;

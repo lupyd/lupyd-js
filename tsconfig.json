@@ -5,8 +5,10 @@
     "skipLibCheck": true,
     "declaration": true,
     "esModuleInterop": true,
+    "strictNullChecks": true,
+    "rootDir": "src",
     "outDir": "./dist",
-    "strictNullChecks": true
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

@@ -240,8 +240,6 @@ export class ApiService {
         method: "PUT",
         headers: headers,
         body: blob,
-        //@ts-ignore
-        duplex: "half",
       },
     );
 
