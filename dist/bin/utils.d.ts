@@ -63,3 +63,4 @@ export interface ResponseInit {
 export declare const fetchWithProgress: (url: string | URL, method: string, headers: Record<string, string> | undefined, body: Blob | BufferSource | FormData | URLSearchParams | string | undefined, onUploadProgress: (sent: number, total: number) => void, onDownloadProgress: (received: number, total: number) => void) => Promise<ResponseInit>;
 export declare const sanitizeFilename: (input: string) => string;
 export declare const dateToRelativeString: (date: Date) => string;
+export declare function sanitizeForUrl(str: string): string;

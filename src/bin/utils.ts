@@ -561,3 +561,8 @@ export const dateToRelativeString = (date: Date) => {
 
   return `too long ago`;
 };
+
+
+export function sanitizeForUrl(str: string): string {
+  return str.replace(/[^a-zA-Z0-9]/g, "_");
+}

@@ -1,4 +1,4 @@
-import { isValidUsername } from "../bin/utils";
+import { isValidUsername, sanitizeForUrl } from "../bin/utils";
 import { throwStatusError } from "../error";
 import { CreatePostDetails, CreatePostWithFiles, Vote } from "../protos/post";
 import { FullUser, UpdateUserInfo } from "../protos/user";
@@ -235,7 +235,7 @@ export class ApiService {
     }
 
     const response = await fetch(
-      `${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`,
+      `${this.apiCdnUrl}/file/${sanitizeForUrl(filename)}`,
       {
         method: "PUT",
         headers: headers,

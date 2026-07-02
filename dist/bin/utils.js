@@ -9,6 +9,7 @@ exports.isValidUsername = isValidUsername;
 exports.arrayBufferToString = arrayBufferToString;
 exports.base64DecodeURL = base64DecodeURL;
 exports.base64EncodeURL = base64EncodeURL;
+exports.sanitizeForUrl = sanitizeForUrl;
 const id128_1 = require("id128");
 const base_x_1 = __importDefault(require("base-x"));
 const constants_1 = require("../constants");
@@ -418,3 +419,6 @@ const dateToRelativeString = (date) => {
     return `too long ago`;
 };
 exports.dateToRelativeString = dateToRelativeString;
+function sanitizeForUrl(str) {
+    return str.replace(/[^a-zA-Z0-9]/g, "_");
+}
