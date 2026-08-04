@@ -24,6 +24,14 @@ import {
   updateUser,
   updateUserProfilePicture,
 } from "./user";
+import {
+  abortMultipartUpload,
+  completeMultipartUpload,
+  createMultipartUpload,
+  MultipartPart,
+  uploadFileMultipart,
+  uploadPart,
+} from "./multipart";
 
 export interface DecodedToken {
   uname: string | undefined;
@@ -257,5 +265,78 @@ export class ApiService {
 
   async getSavedPosts() {
     return getSavedPosts(this.apiUrl, await this.getToken());
+  }
+
+  async createMultipartUpload(
+    fileName: string,
+    contentType: string,
+    totalSize: number,
+    key?: string,
+  ) {
+    const token = await this.getToken();
+    return createMultipartUpload(
+      this.apiCdnUrl,
+      fileName,
+      contentType,
+      totalSize,
+      token,
+      key,
+    );
+  }
+
+  async uploadPart(
+    key: string,
+    uploadId: string,
+    partNumber: number,
+    body: BodyInit,
+  ) {
+    const token = await this.getToken();
+    return uploadPart(
+      this.apiCdnUrl,
+      key,
+      uploadId,
+      partNumber,
+      body,
+      token,
+    );
+  }
+
+  async completeMultipartUpload(
+    key: string,
+    uploadId: string,
+    parts: MultipartPart[],
+  ) {
+    const token = await this.getToken();
+    return completeMultipartUpload(
+      this.apiCdnUrl,
+      key,
+      uploadId,
+      parts,
+      token,
+    );
+  }
+
+  async abortMultipartUpload(key: string, uploadId: string) {
+    const token = await this.getToken();
+    return abortMultipartUpload(this.apiCdnUrl, key, uploadId, token);
+  }
+
+  async uploadFileMultipart(
+    fileName: string,
+    mimeType: string,
+    data: Blob | Uint8Array,
+    partSize?: number,
+    progressCallback?: (totalBytes: number, bytesSent: number) => void,
+  ) {
+    const token = await this.getToken();
+    return uploadFileMultipart(
+      this.apiCdnUrl,
+      fileName,
+      mimeType,
+      data,
+      token,
+      partSize,
+      progressCallback,
+    );
   }
 }

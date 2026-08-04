@@ -1,6 +1,7 @@
 import { CreatePostDetails, CreatePostWithFiles, Vote } from "../protos/post";
 import { UpdateUserInfo } from "../protos/user";
 import { GetPostsData } from "./post";
+import { MultipartPart } from "./multipart";
 export interface DecodedToken {
     uname: string | undefined;
     perms: number | undefined;
@@ -40,4 +41,9 @@ export declare class ApiService {
     uploadFile(filename: string, mimeType: string, blob: BodyInit, contentLength?: number | undefined): Promise<string>;
     savePost(postId: string): Promise<void>;
     getSavedPosts(): Promise<string[]>;
+    createMultipartUpload(fileName: string, contentType: string, totalSize: number, key?: string): Promise<import("./multipart").MultipartCreateResponse>;
+    uploadPart(key: string, uploadId: string, partNumber: number, body: BodyInit): Promise<MultipartPart>;
+    completeMultipartUpload(key: string, uploadId: string, parts: MultipartPart[]): Promise<import("./multipart").MultipartCompleteResponse>;
+    abortMultipartUpload(key: string, uploadId: string): Promise<import("./multipart").MultipartAbortResponse>;
+    uploadFileMultipart(fileName: string, mimeType: string, data: Blob | Uint8Array, partSize?: number, progressCallback?: (totalBytes: number, bytesSent: number) => void): Promise<import("./multipart").MultipartCompleteResponse>;
 }

@@ -8,6 +8,7 @@ const error_1 = require("../error");
 const user_1 = require("../protos/user");
 const post_1 = require("./post");
 const user_2 = require("./user");
+const multipart_1 = require("./multipart");
 function usernameExistsInToken(token) {
     try {
         const decodedToken = getPayloadFromAccessToken(token);
@@ -159,6 +160,26 @@ class ApiService {
     }
     async getSavedPosts() {
         return (0, post_1.getSavedPosts)(this.apiUrl, await this.getToken());
+    }
+    async createMultipartUpload(fileName, contentType, totalSize, key) {
+        const token = await this.getToken();
+        return (0, multipart_1.createMultipartUpload)(this.apiCdnUrl, fileName, contentType, totalSize, token, key);
+    }
+    async uploadPart(key, uploadId, partNumber, body) {
+        const token = await this.getToken();
+        return (0, multipart_1.uploadPart)(this.apiCdnUrl, key, uploadId, partNumber, body, token);
+    }
+    async completeMultipartUpload(key, uploadId, parts) {
+        const token = await this.getToken();
+        return (0, multipart_1.completeMultipartUpload)(this.apiCdnUrl, key, uploadId, parts, token);
+    }
+    async abortMultipartUpload(key, uploadId) {
+        const token = await this.getToken();
+        return (0, multipart_1.abortMultipartUpload)(this.apiCdnUrl, key, uploadId, token);
+    }
+    async uploadFileMultipart(fileName, mimeType, data, partSize, progressCallback) {
+        const token = await this.getToken();
+        return (0, multipart_1.uploadFileMultipart)(this.apiCdnUrl, fileName, mimeType, data, token, partSize, progressCallback);
     }
 }
 exports.ApiService = ApiService;

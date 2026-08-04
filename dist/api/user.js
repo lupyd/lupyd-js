@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRelationsState = exports.relationToString = exports.deleteUserProfilePicture = exports.updateUserProfilePicture = exports.updateUser = exports.getUsersByUsername = exports.getUser = exports.getUsers = void 0;
+exports.UserRelationsState = exports.RELATION_FLAGS = exports.relationToString = exports.Relation = exports.deleteUserProfilePicture = exports.updateUserProfilePicture = exports.updateUser = exports.getUsersByUsername = exports.getUser = exports.getUsers = void 0;
 exports.getUserRelations = getUserRelations;
 exports.updateUserRelation = updateUserRelation;
 const __1 = require("..");
@@ -111,7 +111,9 @@ var Relation;
     Relation[Relation["unfollow"] = 1] = "unfollow";
     Relation[Relation["block"] = 2] = "block";
     Relation[Relation["unblock"] = 3] = "unblock";
-})(Relation || (Relation = {}));
+    Relation[Relation["accept"] = 4] = "accept";
+    Relation[Relation["unaccept"] = 5] = "unaccept";
+})(Relation || (exports.Relation = Relation = {}));
 const relationToString = (r) => {
     switch (r) {
         case Relation.follow:
@@ -122,12 +124,23 @@ const relationToString = (r) => {
             return "block";
         case Relation.unblock:
             return "unblock";
+        case Relation.accept:
+            return "accept";
+        case Relation.unaccept:
+            return "unaccept";
     }
 };
 exports.relationToString = relationToString;
+exports.RELATION_FLAGS = {
+    FOLLOWS: 1,
+    BLOCKED: 2,
+    ACCEPTED: 4,
+};
 class UserRelationsState {
     followedUsers;
     blockedUsers;
+    acceptedUsers;
+    userStates;
     apiUrl;
     getToken;
     onUpdate;
@@ -135,6 +148,8 @@ class UserRelationsState {
         this.onUpdate = onUpdate;
         this.followedUsers = new Set();
         this.blockedUsers = new Set();
+        this.acceptedUsers = new Set();
+        this.userStates = new Map();
         this.apiUrl = apiUrl;
         this.getToken = getToken;
     }
@@ -146,38 +161,109 @@ class UserRelationsState {
     fromRelations(relations) {
         this.followedUsers.clear();
         this.blockedUsers.clear();
+        this.acceptedUsers.clear();
+        this.userStates.clear();
         for (const relation of relations.relations) {
-            if (relation.relation) {
-                this.followedUsers.add(relation.uname);
+            let relVal;
+            if (typeof relation.relation === "boolean") {
+                relVal = relation.relation ? exports.RELATION_FLAGS.FOLLOWS : exports.RELATION_FLAGS.BLOCKED;
             }
             else {
+                relVal = Number(relation.relation);
+            }
+            this.userStates.set(relation.uname, relVal);
+            if ((relVal & exports.RELATION_FLAGS.FOLLOWS) !== 0) {
+                this.followedUsers.add(relation.uname);
+            }
+            if ((relVal & exports.RELATION_FLAGS.BLOCKED) !== 0) {
                 this.blockedUsers.add(relation.uname);
+            }
+            if ((relVal & exports.RELATION_FLAGS.ACCEPTED) !== 0) {
+                this.acceptedUsers.add(relation.uname);
             }
         }
     }
     callUpdate() {
         this.onUpdate([...this.followedUsers], [...this.blockedUsers]);
     }
+    getAllStates() {
+        return {
+            followed: [...this.followedUsers],
+            blocked: [...this.blockedUsers],
+            accepted: [...this.acceptedUsers],
+            followedUsers: [...this.followedUsers],
+            blockedUsers: [...this.blockedUsers],
+            acceptedUsers: [...this.acceptedUsers],
+            userStates: new Map(this.userStates),
+        };
+    }
+    getAcceptedUsers() {
+        return [...this.acceptedUsers];
+    }
+    getUserState(username) {
+        return this.userStates.get(username) ?? 0;
+    }
     async blockUser(username) {
         await updateUserRelation(this.apiUrl, username, Relation.block, await this.getToken());
-        this.followedUsers.delete(username);
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current | exports.RELATION_FLAGS.BLOCKED;
+        this.userStates.set(username, updated);
         this.blockedUsers.add(username);
         this.callUpdate();
     }
     async unblockUser(username) {
         await updateUserRelation(this.apiUrl, username, Relation.unblock, await this.getToken());
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current & ~exports.RELATION_FLAGS.BLOCKED;
+        if (updated === 0) {
+            this.userStates.delete(username);
+        }
+        else {
+            this.userStates.set(username, updated);
+        }
         this.blockedUsers.delete(username);
         this.callUpdate();
     }
     async followUser(username) {
         await updateUserRelation(this.apiUrl, username, Relation.follow, await this.getToken());
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current | exports.RELATION_FLAGS.FOLLOWS;
+        this.userStates.set(username, updated);
         this.followedUsers.add(username);
-        this.blockedUsers.delete(username);
         this.callUpdate();
     }
     async unfollowUser(username) {
-        await updateUserRelation(this.apiUrl, username, Relation.unblock, await this.getToken());
+        await updateUserRelation(this.apiUrl, username, Relation.unfollow, await this.getToken());
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current & ~exports.RELATION_FLAGS.FOLLOWS;
+        if (updated === 0) {
+            this.userStates.delete(username);
+        }
+        else {
+            this.userStates.set(username, updated);
+        }
         this.followedUsers.delete(username);
+        this.callUpdate();
+    }
+    async acceptUser(username) {
+        await updateUserRelation(this.apiUrl, username, Relation.accept, await this.getToken());
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current | exports.RELATION_FLAGS.ACCEPTED;
+        this.userStates.set(username, updated);
+        this.acceptedUsers.add(username);
+        this.callUpdate();
+    }
+    async unacceptUser(username) {
+        await updateUserRelation(this.apiUrl, username, Relation.unaccept, await this.getToken());
+        const current = this.userStates.get(username) ?? 0;
+        const updated = current & ~exports.RELATION_FLAGS.ACCEPTED;
+        if (updated === 0) {
+            this.userStates.delete(username);
+        }
+        else {
+            this.userStates.set(username, updated);
+        }
+        this.acceptedUsers.delete(username);
         this.callUpdate();
     }
 }

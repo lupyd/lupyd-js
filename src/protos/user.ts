@@ -50,8 +50,8 @@ export interface User {
 
 export interface Relation {
   uname: string;
-  /** true follows, false blocked */
-  relation: boolean;
+  /** bit mask: 1 follows, 2 blocked, 4 accepted */
+  relation: number;
 }
 
 export interface Relations {
@@ -633,7 +633,7 @@ export const User: MessageFns<User> = {
 };
 
 function createBaseRelation(): Relation {
-  return { uname: "", relation: false };
+  return { uname: "", relation: 0 };
 }
 
 export const Relation: MessageFns<Relation> = {
@@ -641,8 +641,8 @@ export const Relation: MessageFns<Relation> = {
     if (message.uname !== "") {
       writer.uint32(10).string(message.uname);
     }
-    if (message.relation !== false) {
-      writer.uint32(16).bool(message.relation);
+    if (message.relation !== 0) {
+      writer.uint32(16).int32(message.relation);
     }
     return writer;
   },
@@ -667,7 +667,7 @@ export const Relation: MessageFns<Relation> = {
             break;
           }
 
-          message.relation = reader.bool();
+          message.relation = reader.int32();
           continue;
         }
       }
@@ -682,7 +682,7 @@ export const Relation: MessageFns<Relation> = {
   fromJSON(object: any): Relation {
     return {
       uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
-      relation: isSet(object.relation) ? globalThis.Boolean(object.relation) : false,
+      relation: isSet(object.relation) ? globalThis.Number(object.relation) : 0,
     };
   },
 
@@ -691,7 +691,7 @@ export const Relation: MessageFns<Relation> = {
     if (message.uname !== "") {
       obj.uname = message.uname;
     }
-    if (message.relation !== false) {
+    if (message.relation !== 0) {
       obj.relation = message.relation;
     }
     return obj;
@@ -703,7 +703,7 @@ export const Relation: MessageFns<Relation> = {
   fromPartial<I extends Exact<DeepPartial<Relation>, I>>(object: I): Relation {
     const message = createBaseRelation();
     message.uname = object.uname ?? "";
-    message.relation = object.relation ?? false;
+    message.relation = object.relation ?? 0;
     return message;
   },
 };

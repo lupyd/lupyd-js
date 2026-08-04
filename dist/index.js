@@ -41,6 +41,7 @@ __exportStar(require("./bin/utils"), exports);
 __exportStar(require("./constants"), exports);
 __exportStar(require("./api/post"), exports);
 __exportStar(require("./api/user"), exports);
+__exportStar(require("./api/multipart"), exports);
 exports.PostProtos = __importStar(require("./protos/post"));
 exports.UserProtos = __importStar(require("./protos/user"));
 exports.ChatProtos = __importStar(require("./protos/chats"));

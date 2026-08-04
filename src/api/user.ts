@@ -136,11 +136,13 @@ export const deleteUserProfilePicture = async (
   throwStatusError(response.status, await response.text());
 };
 
-enum Relation {
+export enum Relation {
   follow,
   unfollow,
   block,
   unblock,
+  accept,
+  unaccept,
 }
 
 export const relationToString = (r: Relation) => {
@@ -153,12 +155,24 @@ export const relationToString = (r: Relation) => {
       return "block";
     case Relation.unblock:
       return "unblock";
+    case Relation.accept:
+      return "accept";
+    case Relation.unaccept:
+      return "unaccept";
   }
 };
+
+export const RELATION_FLAGS = {
+  FOLLOWS: 1,
+  BLOCKED: 2,
+  ACCEPTED: 4,
+} as const;
 
 export class UserRelationsState {
   private followedUsers: Set<string>;
   private blockedUsers: Set<string>;
+  private acceptedUsers: Set<string>;
+  private userStates: Map<string, number>;
   private readonly apiUrl: string;
   getToken: () => Promise<string>;
   onUpdate: (followedUsers: string[], blockedUsers: string[]) => void;
@@ -171,6 +185,8 @@ export class UserRelationsState {
     this.onUpdate = onUpdate;
     this.followedUsers = new Set();
     this.blockedUsers = new Set();
+    this.acceptedUsers = new Set();
+    this.userStates = new Map();
     this.apiUrl = apiUrl;
     this.getToken = getToken;
   }
@@ -187,18 +203,53 @@ export class UserRelationsState {
   private fromRelations(relations: UserProtos.Relations) {
     this.followedUsers.clear();
     this.blockedUsers.clear();
+    this.acceptedUsers.clear();
+    this.userStates.clear();
 
     for (const relation of relations.relations) {
-      if (relation.relation) {
-        this.followedUsers.add(relation.uname);
+      let relVal: number;
+      if (typeof relation.relation === "boolean") {
+        relVal = relation.relation ? RELATION_FLAGS.FOLLOWS : RELATION_FLAGS.BLOCKED;
       } else {
+        relVal = Number(relation.relation);
+      }
+
+      this.userStates.set(relation.uname, relVal);
+
+      if ((relVal & RELATION_FLAGS.FOLLOWS) !== 0) {
+        this.followedUsers.add(relation.uname);
+      }
+      if ((relVal & RELATION_FLAGS.BLOCKED) !== 0) {
         this.blockedUsers.add(relation.uname);
+      }
+      if ((relVal & RELATION_FLAGS.ACCEPTED) !== 0) {
+        this.acceptedUsers.add(relation.uname);
       }
     }
   }
 
   private callUpdate() {
     this.onUpdate([...this.followedUsers], [...this.blockedUsers]);
+  }
+
+  getAllStates() {
+    return {
+      followed: [...this.followedUsers],
+      blocked: [...this.blockedUsers],
+      accepted: [...this.acceptedUsers],
+      followedUsers: [...this.followedUsers],
+      blockedUsers: [...this.blockedUsers],
+      acceptedUsers: [...this.acceptedUsers],
+      userStates: new Map(this.userStates),
+    };
+  }
+
+  getAcceptedUsers(): string[] {
+    return [...this.acceptedUsers];
+  }
+
+  getUserState(username: string): number {
+    return this.userStates.get(username) ?? 0;
   }
 
   async blockUser(username: string) {
@@ -209,7 +260,9 @@ export class UserRelationsState {
       await this.getToken(),
     );
 
-    this.followedUsers.delete(username);
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current | RELATION_FLAGS.BLOCKED;
+    this.userStates.set(username, updated);
     this.blockedUsers.add(username);
 
     this.callUpdate();
@@ -223,6 +276,13 @@ export class UserRelationsState {
       await this.getToken(),
     );
 
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current & ~RELATION_FLAGS.BLOCKED;
+    if (updated === 0) {
+      this.userStates.delete(username);
+    } else {
+      this.userStates.set(username, updated);
+    }
     this.blockedUsers.delete(username);
     this.callUpdate();
   }
@@ -235,8 +295,10 @@ export class UserRelationsState {
       await this.getToken(),
     );
 
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current | RELATION_FLAGS.FOLLOWS;
+    this.userStates.set(username, updated);
     this.followedUsers.add(username);
-    this.blockedUsers.delete(username);
     this.callUpdate();
   }
 
@@ -244,11 +306,52 @@ export class UserRelationsState {
     await updateUserRelation(
       this.apiUrl,
       username,
-      Relation.unblock,
+      Relation.unfollow,
       await this.getToken(),
     );
 
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current & ~RELATION_FLAGS.FOLLOWS;
+    if (updated === 0) {
+      this.userStates.delete(username);
+    } else {
+      this.userStates.set(username, updated);
+    }
     this.followedUsers.delete(username);
+    this.callUpdate();
+  }
+
+  async acceptUser(username: string) {
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.accept,
+      await this.getToken(),
+    );
+
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current | RELATION_FLAGS.ACCEPTED;
+    this.userStates.set(username, updated);
+    this.acceptedUsers.add(username);
+    this.callUpdate();
+  }
+
+  async unacceptUser(username: string) {
+    await updateUserRelation(
+      this.apiUrl,
+      username,
+      Relation.unaccept,
+      await this.getToken(),
+    );
+
+    const current = this.userStates.get(username) ?? 0;
+    const updated = current & ~RELATION_FLAGS.ACCEPTED;
+    if (updated === 0) {
+      this.userStates.delete(username);
+    } else {
+      this.userStates.set(username, updated);
+    }
+    this.acceptedUsers.delete(username);
     this.callUpdate();
   }
 }

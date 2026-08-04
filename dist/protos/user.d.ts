@@ -34,8 +34,8 @@ export interface User {
 }
 export interface Relation {
     uname: string;
-    /** true follows, false blocked */
-    relation: boolean;
+    /** bit mask: 1 follows, 2 blocked, 4 accepted */
+    relation: number;
 }
 export interface Relations {
     relations: Relation[];

@@ -2,6 +2,7 @@ export * from "./bin/utils";
 export * from "./constants";
 export * from "./api/post";
 export * from "./api/user";
+export * from "./api/multipart";
 export * as PostProtos from "./protos/post";
 export * as UserProtos from "./protos/user";
 export * as ChatProtos from "./protos/chats";

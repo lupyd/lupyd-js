@@ -526,15 +526,15 @@ exports.User = {
     },
 };
 function createBaseRelation() {
-    return { uname: "", relation: false };
+    return { uname: "", relation: 0 };
 }
 exports.Relation = {
     encode(message, writer = new wire_1.BinaryWriter()) {
         if (message.uname !== "") {
             writer.uint32(10).string(message.uname);
         }
-        if (message.relation !== false) {
-            writer.uint32(16).bool(message.relation);
+        if (message.relation !== 0) {
+            writer.uint32(16).int32(message.relation);
         }
         return writer;
     },
@@ -556,7 +556,7 @@ exports.Relation = {
                     if (tag !== 16) {
                         break;
                     }
-                    message.relation = reader.bool();
+                    message.relation = reader.int32();
                     continue;
                 }
             }
@@ -570,7 +570,7 @@ exports.Relation = {
     fromJSON(object) {
         return {
             uname: isSet(object.uname) ? globalThis.String(object.uname) : "",
-            relation: isSet(object.relation) ? globalThis.Boolean(object.relation) : false,
+            relation: isSet(object.relation) ? globalThis.Number(object.relation) : 0,
         };
     },
     toJSON(message) {
@@ -578,7 +578,7 @@ exports.Relation = {
         if (message.uname !== "") {
             obj.uname = message.uname;
         }
-        if (message.relation !== false) {
+        if (message.relation !== 0) {
             obj.relation = message.relation;
         }
         return obj;
@@ -589,7 +589,7 @@ exports.Relation = {
     fromPartial(object) {
         const message = createBaseRelation();
         message.uname = object.uname ?? "";
-        message.relation = object.relation ?? false;
+        message.relation = object.relation ?? 0;
         return message;
     },
 };
