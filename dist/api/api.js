@@ -144,7 +144,7 @@ class ApiService {
         if (contentLength) {
             headers["content-length"] = contentLength.toString();
         }
-        const response = await fetch(`${this.apiCdnUrl}/file/${encodeURIComponent(filename)}`, {
+        const response = await fetch(`${this.apiCdnUrl}/file/${(0, utils_1.sanitizeForUrl)(filename)}`, {
             method: "PUT",
             headers: headers,
             body: blob,
