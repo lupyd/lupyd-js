@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRelationsState = exports.RELATION_FLAGS = exports.relationToString = exports.Relation = exports.deleteUserProfilePicture = exports.updateUserProfilePicture = exports.updateUser = exports.getUsersByUsername = exports.getUser = exports.getUsers = void 0;
 exports.getUserRelations = getUserRelations;
 exports.updateUserRelation = updateUserRelation;
-const __1 = require("..");
+const protos_1 = require("@lupyd/protos");
 const utils_1 = require("../bin/utils");
 const error_1 = require("../error");
-const user_1 = require("../protos/user");
 const api_1 = require("./api");
+const { UpdateUserInfo, User, Users } = protos_1.user;
 const getUsers = async (apiUrl, username, token) => {
     const users = [];
     if (username.length <= 1) {
@@ -19,7 +19,7 @@ const getUsers = async (apiUrl, username, token) => {
     });
     if (response.status === 200) {
         const body = await response.arrayBuffer();
-        return user_1.Users.decode(new Uint8Array(body)).users;
+        return Users.decode(new Uint8Array(body)).users;
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
@@ -33,7 +33,7 @@ const getUser = async (apiUrl, username, token) => {
     });
     if (response.status === 200) {
         const body = await response.arrayBuffer();
-        return user_1.User.decode(new Uint8Array(body));
+        return User.decode(new Uint8Array(body));
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
@@ -49,7 +49,7 @@ const getUsersByUsername = async (apiUrl, usernames, token) => {
     });
     if (response.status === 200) {
         const body = await response.arrayBuffer();
-        return user_1.Users.decode(new Uint8Array(body)).users;
+        return Users.decode(new Uint8Array(body)).users;
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
@@ -60,7 +60,7 @@ const updateUser = async (apiUrl, info, token) => {
     }
     const response = await fetch(`${apiUrl}/user`, {
         method: "PUT",
-        body: new Uint8Array(user_1.UpdateUserInfo.encode(info).finish()),
+        body: new Uint8Array(UpdateUserInfo.encode(info).finish()),
         headers: {
             "content-type": "application/protobuf; proto=lupyd.user.UpdateUserInfo",
             authorization: `Bearer ${token}`,
@@ -278,7 +278,7 @@ async function getUserRelations(apiUrl, token) {
         },
     });
     if (response.status == 200) {
-        return __1.UserProtos.Relations.decode(new Uint8Array(await response.arrayBuffer()));
+        return protos_1.user.Relations.decode(new Uint8Array(await response.arrayBuffer()));
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 }

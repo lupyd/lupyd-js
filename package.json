@@ -1,6 +1,6 @@
 {
   "name": "lupyd-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.1",
+    "@lupyd/protos": "^0.1.0",
     "base-x": "^5.0.1",
     "id128": "^1.6.6",
     "jwt-decode": "^4.0.0",
@@ -28,7 +29,6 @@
     "micromark-extension-math": "^3.1.0",
     "micromark-util-types": "^2.0.2",
     "store2": "^2.14.4",
-    "ts-proto": "^2.7.5",
     "vanjs-core": "^1.5.5"
   },
   "devDependencies": {

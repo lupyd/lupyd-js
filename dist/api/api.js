@@ -5,9 +5,11 @@ exports.usernameExistsInToken = usernameExistsInToken;
 exports.getPayloadFromAccessToken = getPayloadFromAccessToken;
 const utils_1 = require("../bin/utils");
 const error_1 = require("../error");
-const user_1 = require("../protos/user");
+const protos_1 = require("@lupyd/protos");
+const { CreatePostDetails, CreatePostWithFiles, Vote } = protos_1.post;
+const { FullUser, UpdateUserInfo } = protos_1.user;
 const post_1 = require("./post");
-const user_2 = require("./user");
+const user_1 = require("./user");
 const multipart_1 = require("./multipart");
 function usernameExistsInToken(token) {
     try {
@@ -79,22 +81,22 @@ class ApiService {
         return (0, post_1.getNotifications)(this.apiUrl, await this.getToken());
     }
     async getUsers(username) {
-        return (0, user_2.getUsers)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
+        return (0, user_1.getUsers)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
     }
     async getUser(username) {
-        return (0, user_2.getUser)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
+        return (0, user_1.getUser)(this.apiUrl, username, await undefinedOnfail(this.getToken()));
     }
     async getUsersByUsername(usernames) {
-        return (0, user_2.getUsersByUsername)(this.apiUrl, usernames, await undefinedOnfail(this.getToken()));
+        return (0, user_1.getUsersByUsername)(this.apiUrl, usernames, await undefinedOnfail(this.getToken()));
     }
     async updateUser(info) {
-        return (0, user_2.updateUser)(this.apiUrl, info, await this.getToken());
+        return (0, user_1.updateUser)(this.apiUrl, info, await this.getToken());
     }
     async updateUserProfilePicture(blob) {
-        return (0, user_2.updateUserProfilePicture)(this.apiCdnUrl, blob, await this.getToken());
+        return (0, user_1.updateUserProfilePicture)(this.apiCdnUrl, blob, await this.getToken());
     }
     async deleteUserProfilePicture() {
-        return (0, user_2.deleteUserProfilePicture)(this.apiCdnUrl, await this.getToken());
+        return (0, user_1.deleteUserProfilePicture)(this.apiCdnUrl, await this.getToken());
     }
     async deleteUser() {
         const token = await this.getToken();
@@ -125,7 +127,7 @@ class ApiService {
             headers: {
                 authorization: `Bearer ${await this.getToken()}`,
             },
-            body: new Uint8Array(user_1.FullUser.encode(user_1.FullUser.create({ uname: username, settings, bio })).finish()),
+            body: new Uint8Array(FullUser.encode(FullUser.create({ uname: username, settings, bio })).finish()),
         });
         if (response.status == 200 || response.status == 201) {
             return;

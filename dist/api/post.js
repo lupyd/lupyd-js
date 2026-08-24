@@ -2,12 +2,12 @@
 // import { API_URL, API_CDN_URL } from "../constants";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSavedPosts = exports.savePost = exports.getNotifications = exports.getTrendingHashtags = exports.deletePost = exports.reportPost = exports.createPostWithFiles = exports.createPost = exports.putVotes = exports.getPosts = exports.FetchType = exports.getPost = void 0;
-const post_1 = require("../protos/post");
+const protos_1 = require("@lupyd/protos");
 const utils_1 = require("../bin/utils");
-const __1 = require("..");
-const notification_1 = require("../protos/notification");
 const api_1 = require("./api");
 const error_1 = require("../error");
+const { CreatePostDetails, CreatePostWithFiles, FullPost, FullPosts, PostBodies, PostReport, Vote, Votes, } = protos_1.post;
+const { Notifications } = protos_1.notification;
 const getPost = async (apiUrl, id, token) => {
     const url = `${apiUrl}/post/${id}`;
     const response = await fetch(url, {
@@ -18,7 +18,7 @@ const getPost = async (apiUrl, id, token) => {
             : undefined,
     });
     if (response.status === 200) {
-        return post_1.FullPost.decode(new Uint8Array(await response.arrayBuffer()));
+        return FullPost.decode(new Uint8Array(await response.arrayBuffer()));
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
@@ -130,7 +130,7 @@ const getPosts = async (apiUrl, getPostDetails, token) => {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
     if (response.status === 200) {
-        const posts = post_1.FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
+        const posts = FullPosts.decode(new Uint8Array(await response.arrayBuffer())).posts;
         return posts;
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
@@ -141,7 +141,7 @@ const putVotes = async (apiUrl, votes, token) => {
     if (!token || !(0, api_1.usernameExistsInToken)(token)) {
         throw new Error(`User not authenticated`);
     }
-    const body = new Uint8Array(post_1.Votes.encode(post_1.Votes.create({ votes })).finish());
+    const body = new Uint8Array(Votes.encode(Votes.create({ votes })).finish());
     const response = await fetch(url, {
         method: "PUT",
         body,
@@ -162,15 +162,15 @@ const createPost = async (apiUrl, createPostDetails, token) => {
     const response = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: new Uint8Array(post_1.CreatePostDetails.encode(createPostDetails).finish()),
+        body: new Uint8Array(CreatePostDetails.encode(createPostDetails).finish()),
     });
     if (response.status === 200) {
         const id = new Uint8Array(await response.arrayBuffer());
-        const post = post_1.FullPost.create({
+        const post = FullPost.create({
             id,
             title: createPostDetails.title,
             body: createPostDetails.body
-                ? post_1.PostBodies.encode(post_1.PostBodies.create({ bodies: [createPostDetails.body] })).finish()
+                ? PostBodies.encode(PostBodies.create({ bodies: [createPostDetails.body] })).finish()
                 : new Uint8Array(),
             expiry: createPostDetails.expiry,
             replyingTo: createPostDetails.replyingTo,
@@ -183,7 +183,7 @@ const createPost = async (apiUrl, createPostDetails, token) => {
 };
 exports.createPost = createPost;
 const makeCreatePostWithFilesBlob = async (details, files) => {
-    const detailsProto = new Uint8Array(post_1.CreatePostWithFiles.encode(details).finish());
+    const detailsProto = new Uint8Array(CreatePostWithFiles.encode(details).finish());
     const contentLength = detailsProto.byteLength +
         8 +
         details.files.map((e) => Number(e.length)).reduce((a, b) => a + b);
@@ -222,13 +222,13 @@ const createPostWithFiles = async (apiCdnUrl, createPostDetails, files, progress
             progressCallback(total, sent);
     }, (recv, total) => { });
     if (response.status === 200) {
-        return post_1.FullPost.decode(response.body);
+        return FullPost.decode(response.body);
     }
     (0, error_1.throwStatusError)(response.status, new TextDecoder().decode(response.body));
 };
 exports.createPostWithFiles = createPostWithFiles;
 const reportPost = async (apiUrl, id, text, token) => {
-    const body = new Uint8Array(post_1.PostReport.encode(post_1.PostReport.create({ postId: id, description: text })).finish());
+    const body = new Uint8Array(PostReport.encode(PostReport.create({ postId: id, description: text })).finish());
     const url = `${apiUrl}/report`;
     if (token === undefined)
         throw new Error("User Not Authenticated");
@@ -264,7 +264,7 @@ const getTrendingHashtags = async (apiUrl) => {
     const url = `${apiUrl}/hashtags`;
     const response = await fetch(url);
     if (response.status == 200) {
-        return __1.PostProtos.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
+        return protos_1.post.PostHashtags.decode(new Uint8Array(await response.arrayBuffer()));
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };
@@ -280,7 +280,7 @@ const getNotifications = async (apiUrl, token) => {
         },
     });
     if (response.status == 200) {
-        return notification_1.Notifications.decode(new Uint8Array(await response.arrayBuffer()));
+        return Notifications.decode(new Uint8Array(await response.arrayBuffer()));
     }
     (0, error_1.throwStatusError)(response.status, await response.text());
 };

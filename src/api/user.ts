@@ -1,8 +1,11 @@
-import { UserProtos } from "..";
+import { user as UserProtos } from "@lupyd/protos";
 import { isValidUsername } from "../bin/utils";
 import { throwStatusError } from "../error";
-import { UpdateUserInfo, User, Users } from "../protos/user";
 import { usernameExistsInToken } from "./api";
+
+const { UpdateUserInfo, User, Users } = UserProtos;
+type User = UserProtos.User;
+type UpdateUserInfo = UserProtos.UpdateUserInfo;
 
 export const getUsers = async (
   apiUrl: string,

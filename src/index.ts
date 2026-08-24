@@ -3,10 +3,18 @@ export * from "./constants";
 export * from "./api/post";
 export * from "./api/user";
 export * from "./api/multipart";
-export * as PostProtos from "./protos/post";
-export * as UserProtos from "./protos/user";
-export * as ChatProtos from "./protos/chats";
-export * as MdProtos from "./protos/lupyd-md";
-export * as NotificationProtos from "./protos/notification";
+export {
+  ads as AdsProtos,
+  auth as AuthProtos,
+  chats as ChatProtos,
+  credits as CreditsProtos,
+  lupydMarkdown as MdProtos,
+  notification as NotificationProtos,
+  post as PostProtos,
+  user as UserProtos,
+  uuid as UuidProtos,
+} from "@lupyd/protos";
+export * from "@lupyd/protos";
 export * from "./api/api";
 export * from "./error";
+

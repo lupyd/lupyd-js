@@ -1,5 +1,6 @@
 import base from "base-x";
-import { File as PostFile } from "../protos/post";
+import { post } from "@lupyd/protos";
+type PostFile = post.File;
 export interface PickedFileUrl {
     blobUrl: string;
     cdnUrl: string;
@@ -64,3 +65,4 @@ export declare const fetchWithProgress: (url: string | URL, method: string, head
 export declare const sanitizeFilename: (input: string) => string;
 export declare const dateToRelativeString: (date: Date) => string;
 export declare function sanitizeForUrl(str: string): string;
+export {};

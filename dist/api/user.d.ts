@@ -1,5 +1,6 @@
-import { UserProtos } from "..";
-import { UpdateUserInfo } from "../protos/user";
+import { user as UserProtos } from "@lupyd/protos";
+declare const UpdateUserInfo: UserProtos.MessageFns<UserProtos.UpdateUserInfo>;
+type UpdateUserInfo = UserProtos.UpdateUserInfo;
 export declare const getUsers: (apiUrl: string, username: string, token?: string) => Promise<UserProtos.User[]>;
 export declare const getUser: (apiUrl: string, username: string, token?: string) => Promise<UserProtos.User>;
 export declare const getUsersByUsername: (apiUrl: string, usernames: string[], token?: string) => Promise<UserProtos.User[]>;
@@ -52,3 +53,4 @@ export declare class UserRelationsState {
 }
 export declare function getUserRelations(apiUrl: string, token?: string): Promise<UserProtos.Relations>;
 export declare function updateUserRelation(apiUrl: string, username: string, relation: Relation, token: string): Promise<void>;
+export {};

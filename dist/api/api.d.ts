@@ -1,5 +1,10 @@
-import { CreatePostDetails, CreatePostWithFiles, Vote } from "../protos/post";
-import { UpdateUserInfo } from "../protos/user";
+import { post as PostProtos, user as UserProtos } from "@lupyd/protos";
+declare const CreatePostDetails: PostProtos.MessageFns<PostProtos.CreatePostDetails>, CreatePostWithFiles: PostProtos.MessageFns<PostProtos.CreatePostWithFiles>, Vote: PostProtos.MessageFns<PostProtos.Vote>;
+type CreatePostDetails = PostProtos.CreatePostDetails;
+type CreatePostWithFiles = PostProtos.CreatePostWithFiles;
+type Vote = PostProtos.Vote;
+declare const UpdateUserInfo: UserProtos.MessageFns<UserProtos.UpdateUserInfo>;
+type UpdateUserInfo = UserProtos.UpdateUserInfo;
 import { GetPostsData } from "./post";
 import { MultipartPart } from "./multipart";
 export interface DecodedToken {
@@ -20,19 +25,19 @@ export declare class ApiService {
     private readonly apiUrl;
     private readonly apiCdnUrl;
     constructor(apiUrl: string, apiCdnUrl: string, getToken: () => Promise<string>);
-    getPost(id: string): Promise<import("../protos/post").FullPost>;
-    getPosts(getPostDetails: GetPostsData): Promise<import("../protos/post").FullPost[]>;
+    getPost(id: string): Promise<PostProtos.FullPost>;
+    getPosts(getPostDetails: GetPostsData): Promise<PostProtos.FullPost[]>;
     putVote(vote: Vote): Promise<void>;
     putVotes(votes: Vote[]): Promise<void>;
-    createPost(createPostDetails: CreatePostDetails): Promise<import("../protos/post").FullPost>;
-    createPostWithFiles(createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: (totalBytes: number, bytesSent: number) => void): Promise<import("../protos/post").FullPost>;
+    createPost(createPostDetails: CreatePostDetails): Promise<PostProtos.FullPost>;
+    createPostWithFiles(createPostDetails: CreatePostWithFiles, files: string[], progressCallback?: (totalBytes: number, bytesSent: number) => void): Promise<PostProtos.FullPost>;
     reportPost(id: Uint8Array, text: string): Promise<void>;
     deletePost(id: Uint8Array): Promise<void>;
-    getTrendingHashtags(): Promise<import("../protos/post").PostHashtags>;
-    getNotifications(): Promise<import("../protos/notification").Notifications>;
-    getUsers(username: string): Promise<import("../protos/user").User[]>;
-    getUser(username: string): Promise<import("../protos/user").User>;
-    getUsersByUsername(usernames: string[]): Promise<import("../protos/user").User[]>;
+    getTrendingHashtags(): Promise<PostProtos.PostHashtags>;
+    getNotifications(): Promise<import("@lupyd/protos/notification").Notifications>;
+    getUsers(username: string): Promise<UserProtos.User[]>;
+    getUser(username: string): Promise<UserProtos.User>;
+    getUsersByUsername(usernames: string[]): Promise<UserProtos.User[]>;
     updateUser(info: UpdateUserInfo): Promise<void>;
     updateUserProfilePicture(blob: Blob): Promise<void>;
     deleteUserProfilePicture(): Promise<void>;
@@ -47,3 +52,4 @@ export declare class ApiService {
     abortMultipartUpload(key: string, uploadId: string): Promise<import("./multipart").MultipartAbortResponse>;
     uploadFileMultipart(fileName: string, mimeType: string, data: Blob | Uint8Array, partSize?: number, progressCallback?: (totalBytes: number, bytesSent: number) => void): Promise<import("./multipart").MultipartCompleteResponse>;
 }
+export {};

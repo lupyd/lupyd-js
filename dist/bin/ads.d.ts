@@ -1,4 +1,4 @@
-import { AdResponse } from "../protos/ads";
+import { ads } from "@lupyd/protos";
 export declare namespace Ads {
 }
-export declare const getAds: () => Promise<AdResponse>;
+export declare const getAds: () => Promise<ads.AdResponse>;

@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - '@lupyd/protos@0.1.0'

@@ -1,7 +1,8 @@
 //@ts-nocheck
 
-import { API_URL } from "../constants"
-import { AdResponse } from "../protos/ads"
+import { API_URL } from "../constants";
+import { ads } from "@lupyd/protos";
+const { AdResponse } = ads;
 
 
 export namespace Ads {

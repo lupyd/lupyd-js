@@ -1,7 +1,15 @@
 import { isValidUsername, sanitizeForUrl } from "../bin/utils";
 import { throwStatusError } from "../error";
-import { CreatePostDetails, CreatePostWithFiles, Vote } from "../protos/post";
-import { FullUser, UpdateUserInfo } from "../protos/user";
+import { post as PostProtos, user as UserProtos } from "@lupyd/protos";
+
+const { CreatePostDetails, CreatePostWithFiles, Vote } = PostProtos;
+type CreatePostDetails = PostProtos.CreatePostDetails;
+type CreatePostWithFiles = PostProtos.CreatePostWithFiles;
+type Vote = PostProtos.Vote;
+
+const { FullUser, UpdateUserInfo } = UserProtos;
+type FullUser = UserProtos.FullUser;
+type UpdateUserInfo = UserProtos.UpdateUserInfo;
 import {
   createPost,
   createPostWithFiles,

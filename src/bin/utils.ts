@@ -2,7 +2,8 @@ import { Ulid } from "id128";
 import base from "base-x";
 import { rawUsernameRegex } from "../constants";
 
-import { File as PostFile } from "../protos/post";
+import { post } from "@lupyd/protos";
+type PostFile = post.File;
 
 const chars =
   "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_`abcdefghijklmnopqrstuvwxyz{|}~";

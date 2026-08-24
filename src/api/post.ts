@@ -1,6 +1,19 @@
 // import { API_URL, API_CDN_URL } from "../constants";
 
 import {
+  post as PostProtos,
+  notification as NotificationProtos,
+} from "@lupyd/protos";
+import {
+  fetchWithProgress,
+  isValidUsername,
+  ulidStringify,
+  Utils,
+} from "../bin/utils";
+import { usernameExistsInToken } from "./api";
+import { throwStatusError } from "../error";
+
+const {
   CreatePostDetails,
   CreatePostWithFiles,
   FullPost,
@@ -9,17 +22,17 @@ import {
   PostReport,
   Vote,
   Votes,
-} from "../protos/post";
-import {
-  fetchWithProgress,
-  isValidUsername,
-  ulidStringify,
-  Utils,
-} from "../bin/utils";
-import { PostProtos } from "..";
-import { Notifications } from "../protos/notification";
-import { usernameExistsInToken } from "./api";
-import { throwStatusError } from "../error";
+} = PostProtos;
+type CreatePostDetails = PostProtos.CreatePostDetails;
+type CreatePostWithFiles = PostProtos.CreatePostWithFiles;
+type FullPost = PostProtos.FullPost;
+type FullPosts = PostProtos.FullPosts;
+type PostBodies = PostProtos.PostBodies;
+type PostReport = PostProtos.PostReport;
+type Vote = PostProtos.Vote;
+type Votes = PostProtos.Votes;
+const { Notifications } = NotificationProtos;
+type Notifications = NotificationProtos.Notifications;
 
 export const getPost = async (apiUrl: string, id: string, token?: string) => {
   const url = `${apiUrl}/post/${id}`;
