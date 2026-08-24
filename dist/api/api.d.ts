@@ -34,7 +34,7 @@ export declare class ApiService {
     reportPost(id: Uint8Array, text: string): Promise<void>;
     deletePost(id: Uint8Array): Promise<void>;
     getTrendingHashtags(): Promise<PostProtos.PostHashtags>;
-    getNotifications(): Promise<import("@lupyd/protos/notification").Notifications>;
+    getNotifications(): Promise<import("@lupyd/protos/notification.js").Notifications>;
     getUsers(username: string): Promise<UserProtos.User[]>;
     getUser(username: string): Promise<UserProtos.User>;
     getUsersByUsername(usernames: string[]): Promise<UserProtos.User[]>;

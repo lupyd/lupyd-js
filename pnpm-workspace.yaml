@@ -1,2 +1,3 @@
 minimumReleaseAgeExclude:
   - '@lupyd/protos@0.1.0'
+  - '@lupyd/protos@1.1.1'
