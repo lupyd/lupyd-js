@@ -304,6 +304,27 @@ export const createPostWithFiles = async (
       console.log(`${sent}/${total} progress: ${(sent * 100) / total}%`);
   }
 
+  // Authorize metadata before reading local blobs or starting the large PUT.
+  // The CDN rechecks during upload: this response is not an upload capability.
+  let fileBytes = 0;
+  for (const file of createPostDetails.files) {
+    const size = Number(file.length);
+    if (!Number.isSafeInteger(size) || size < 0 || !Number.isSafeInteger(fileBytes + size)) {
+      throw new Error("Invalid upload size");
+    }
+    fileBytes += size;
+  }
+  const check = await fetch(`${apiCdnUrl.replace(/\/$/, "")}/post-full/check?size=${fileBytes}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+    signal: AbortSignal.timeout(15000),
+  });
+  if (check.status !== 204) {
+    const message = await check.text();
+    if (!check.ok) throwStatusError(check.status, message);
+    throw new Error("Invalid upload check response");
+  }
+
   const body = await makeCreatePostWithFilesBlob(createPostDetails, files);
   const contentLength = body.size;
   console.log({ createPostDetails, files, contentLength });
